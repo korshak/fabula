@@ -1,0 +1,108 @@
+name: CI
+
+# `pull_request`, deliberately not `pull_request_target`: a pull request from a
+# fork must run with a read-only token and no access to repository secrets.
+# Nothing in this workflow needs either.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONUTF8: "1"          # the sample books and the UI are not ASCII
+  PYTHONIOENCODING: utf-8
+
+jobs:
+  test:
+    name: ${{ matrix.os }} · Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python: ["3.10", "3.11", "3.12", "3.13"]
+        include:
+          # book names are paths, and they are not ASCII — check the two
+          # platforms that disagree with Linux about filenames
+          - os: macos-latest
+            python: "3.12"
+          - os: windows-latest
+            python: "3.12"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install
+        run: python -m pip install --upgrade pip && python -m pip install -e .
+
+      - name: Test
+        run: python -m unittest discover -s tests -t . -v
+
+  walkthrough:
+    name: README walkthrough
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install as a user would
+        run: python -m pip install --upgrade pip && python -m pip install .
+
+      - name: The commands the README promises
+        run: |
+          set -euo pipefail
+          fabula --help
+          fabula templates
+          fabula compile "Shadows of Memory" > /dev/null
+          fabula plan "Shadows of Memory"
+          fabula compile "Тіні пам'яті" > /dev/null
+          fabula models "Shadows of Memory" || true   # no provider is reachable in CI
+
+      - name: A fresh book, from scratch
+        env:
+          FABULA_BOOKS: ${{ runner.temp }}/books
+        run: |
+          set -euo pipefail
+          fabula init ci-book
+          fabula compile ci-book | python -c "import json,sys; assert json.load(sys.stdin)['ok']"
+          fabula plan ci-book
+
+  package:
+    name: Package metadata
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Build the distributions
+        run: python -m pip install --upgrade pip build twine && python -m build
+
+      - name: Check them
+        run: python -m twine check dist/*
+
+      - name: The core must stay dependency-free
+        run: |
+          python - <<'PY'
+          import tomllib, sys
+          meta = tomllib.load(open("pyproject.toml", "rb"))["project"]
+          deps = meta.get("dependencies") or []
+          if deps:
+              sys.exit(f"the core has picked up runtime dependencies: {deps}\n"
+                       "model SDKs belong in [project.optional-dependencies]")
+          print("stdlib only — as promised")
+          PY
