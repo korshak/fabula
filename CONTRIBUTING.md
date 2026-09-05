@@ -50,3 +50,19 @@ extras (see `[project.optional-dependencies]` in `pyproject.toml`).
 The easiest contribution: copy `fabula/locales/en.json` to your language,
 translate, open a PR. Partial translations are fine — missing keys fall back
 to English.
+
+## Licensing of contributions
+
+Fabula is under the [PolyForm Noncommercial License 1.0.0](LICENSE) — not an
+open-source license: noncommercial use is free, commercial use needs a separate
+license from the copyright holder (Denys Korshak). Please read it before
+investing time in a change.
+
+By opening a pull request you agree that your contribution is licensed to the
+project under those same terms, and that you grant the copyright holder the
+right to license your contribution commercially as part of Fabula. That last
+part is what keeps a commercial license possible at all: without it, every
+future commercial arrangement would need every past contributor to sign off.
+
+If you are not comfortable with that, a bug report or a design discussion in an
+issue is a contribution too, and carries none of this.

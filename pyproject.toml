@@ -8,10 +8,15 @@ version = "0.1.0"
 description = "AI-first DSL and toolchain for books written by LLM agents: compiler with machine-readable diagnostics, scene memory, multi-provider generation, and a local web studio"
 readme = "README.md"
 requires-python = ">=3.10"
+authors = [{ name = "Denys Korshak" }]
+# PolyForm Noncommercial 1.0.0 — free for noncommercial use; commercial use
+# requires a separate license from the copyright holder. NOT an OSI-approved
+# open-source license, hence the "Other/Proprietary" classifier below.
 license = { file = "LICENSE" }
 keywords = ["dsl", "llm", "agents", "writing", "fiction", "claude", "narrative"]
 classifiers = [
   "Development Status :: 3 - Alpha",
+  "License :: Other/Proprietary License",
   "Environment :: Console",
   "Environment :: Web Environment",
   "Intended Audience :: Developers",
@@ -23,6 +28,11 @@ classifiers = [
 ]
 # The core has zero runtime dependencies (stdlib only).
 dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/korshak/fabula"
+Source = "https://github.com/korshak/fabula"
+Issues = "https://github.com/korshak/fabula/issues"
 
 [project.optional-dependencies]
 # `pip install "fabula-lang[anthropic]"` — for the Anthropic API provider;

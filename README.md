@@ -287,4 +287,26 @@ settings keys, and the full diagnostics table.
 `pip install -e .` for local development; release artifacts via
 `python3 -m build`. Packaging lives in [pyproject.toml](pyproject.toml)
 (zero runtime deps; locales and the web UI ship inside the wheel).
-Contributions: [CONTRIBUTING.md](CONTRIBUTING.md). License: [MIT](LICENSE).
+Contributions: [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## License
+
+Fabula is released under the [PolyForm Noncommercial License 1.0.0](LICENSE) —
+**free for any noncommercial purpose, commercial use is not permitted** without
+a separate license. That covers the whole toolchain and any part of it: you may
+not lift a module, the compiler, the prompt templates or the studio out of the
+project and put them to commercial use.
+
+Permitted without asking anyone: personal projects, hobby writing, study and
+research, teaching, and use by charities, schools, universities, public
+research bodies and government institutions — including writing and publishing
+books you sell, since the restriction is on commercialising *the software*, not
+your prose. You may also fork it, change it and redistribute it, as long as the
+result stays noncommercial and carries the license along.
+
+Not permitted: using Fabula inside a company's operations, building a product or
+paid service on top of it, or bundling it into something you sell. For any of
+that, open an [issue](https://github.com/korshak/fabula/issues) to arrange a
+commercial license.
+
+Note that this is deliberately **not** an OSI-approved open-source license.
