@@ -1,5 +1,7 @@
 # Fabula — an AI-first language for book-writing agents
 
+[![CI](https://github.com/korshak/fabula/actions/workflows/ci.yml/badge.svg)](https://github.com/korshak/fabula/actions/workflows/ci.yml)
+
 [Українська версія](README.uk.md)
 
 Fabula is a DSL whose primary "reader" is not a human but a writing agent —
@@ -131,8 +133,9 @@ fabula manuscript my-book -o book.md
 | `~/.fabula/projects.json` | recently opened books, for the studio's project switcher | outside the checkout |
 
 Three environment variables adjust this: `FABULA_BOOKS` moves the library out of
-the checkout, `FABULA_HOME` moves `~/.fabula`, and `FABULA_LANG` (`uk` — the
-default — or `en`) sets the interface and scaffold language. The UI language is
+the checkout, `FABULA_HOME` moves `~/.fabula`, and `FABULA_LANG` (`uk` or `en`)
+sets the interface and scaffold language. With `FABULA_LANG` unset the interface
+follows your system locale, falling back to English. The UI language is
 independent of the prompts sent to the writing model, which follow each book's
 own `language` setting.
 
@@ -432,7 +435,29 @@ settings keys, and the full diagnostics table.
 `pip install -e .` for local development; release artifacts via
 `python3 -m build`. Packaging lives in [pyproject.toml](pyproject.toml)
 (zero runtime deps; locales and the web UI ship inside the wheel).
+
+```bash
+python3 -m unittest discover -s tests -t .
+```
+
+Stdlib `unittest`, no network and no API key. CI runs the same suite on Linux,
+macOS and Windows across Python 3.10–3.13.
 Contributions: [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Privacy and safety
+
+Fabula runs entirely on your machine. There is no Fabula service, no account and
+no telemetry — the only traffic it makes is the call to whichever model provider
+you configured yourself. Your books never leave the folder they live in.
+
+API keys are read from environment variables only. `models.json` stores the
+*name* of the variable, never its value, which is why it is safe to commit.
+
+`fabula serve` binds to `127.0.0.1` and has no login. It is guarded against the
+browser — a page on another site cannot drive it, and a hostname rebound to
+`127.0.0.1` cannot reach it — but not against the machine: anyone with an
+account on the same host can. Run it on a machine you control, and do not expose
+the port. Found a hole? [SECURITY.md](SECURITY.md).
 
 ## License
 
