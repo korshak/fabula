@@ -17,6 +17,7 @@ Shape:
 
 from __future__ import annotations
 
+import contextlib
 import json
 import os
 import re
@@ -24,7 +25,19 @@ import shutil
 import threading
 from pathlib import Path
 
-_SAVE_LOCK = threading.Lock()  # server jobs and request handlers share the process
+# One lock per state file: server request handlers and background jobs share
+# the process, and each of them builds its own ProjectState over the same file.
+_LOCKS: dict[str, threading.RLock] = {}
+_LOCKS_GUARD = threading.Lock()
+
+
+def _lock_for(path: Path) -> threading.RLock:
+    key = str(Path(path).resolve())
+    with _LOCKS_GUARD:
+        lock = _LOCKS.get(key)
+        if lock is None:
+            lock = _LOCKS[key] = threading.RLock()
+        return lock
 
 
 def slug(name: str) -> str:
@@ -36,19 +49,43 @@ class ProjectState:
     def __init__(self, build_dir: Path):
         self.build_dir = Path(build_dir)
         self.path = self.build_dir / "state.json"
+        self._lock = _lock_for(self.path)
         self.data = {"scenes": {}}
+        self.reload()
+
+    def reload(self):
+        """Re-read the file; the object becomes a snapshot of it as of now."""
+        data = {"scenes": {}}
         if self.path.exists():
             try:
-                self.data = json.loads(self.path.read_text(encoding="utf-8"))
+                data = json.loads(self.path.read_text(encoding="utf-8"))
             except json.JSONDecodeError:
                 pass
-        self.data.setdefault("scenes", {})
+        data.setdefault("scenes", {})
+        self.data = data
+
+    @contextlib.contextmanager
+    def _mutate(self):
+        """Load, modify, save — as one atomic step against the file.
+
+        A ProjectState is a snapshot, and it may be an old one: a generation
+        job holds its state across a whole LLM call, and the web UI serves
+        concurrent requests from separate threads. So the file, not this
+        object, is the truth at write time: re-read it inside the lock, apply
+        the change to what is really there, then write. Without this, two
+        approvals racing each other each save their own stale copy of the
+        whole document and the later save silently drops the earlier one.
+        """
+        with self._lock:
+            self.reload()
+            yield
+            self.save()
 
     def save(self):
         self.build_dir.mkdir(parents=True, exist_ok=True)
         payload = json.dumps(self.data, ensure_ascii=False, indent=2)
         tmp = self.path.with_name(self.path.name + ".tmp")
-        with _SAVE_LOCK:  # atomic replace: readers never see a half-written file
+        with self._lock:  # atomic replace: readers never see a half-written file
             tmp.write_text(payload, encoding="utf-8")
             os.replace(tmp, self.path)
 
@@ -75,32 +112,33 @@ class ProjectState:
                 words = len(path.read_text(encoding="utf-8").split())
             except OSError:
                 words = None
-        self.scene(name)["variants"][filename] = {"critique": critique, "words": words}
-        # writing history feeds the statistics tab: words produced per day
-        self.data.setdefault("history", []).append({
-            "date": datetime.date.today().isoformat(),
-            "scene": name, "file": filename, "words": words or 0,
-        })
-        self.save()
+        with self._mutate():
+            self.scene(name)["variants"][filename] = {"critique": critique, "words": words}
+            # writing history feeds the statistics tab: words produced per day
+            self.data.setdefault("history", []).append({
+                "date": datetime.date.today().isoformat(),
+                "scene": name, "file": filename, "words": words or 0,
+            })
 
     def mark_variant_edited(self, name: str, filename: str):
-        entry = self.scene(name)["variants"].setdefault(filename, {"critique": {}})
-        entry["edited"] = True
-        self.save()
+        with self._mutate():
+            entry = self.scene(name)["variants"].setdefault(filename, {"critique": {}})
+            entry["edited"] = True
 
     def add_comment(self, name: str, filename: str, quote: str, note: str) -> str:
         """An inline editor comment anchored to a quoted passage of a variant."""
         import uuid
-        entry = self.scene(name)["variants"].setdefault(filename, {"critique": {}})
         comment = {"id": uuid.uuid4().hex[:8], "quote": quote, "note": note}
-        entry.setdefault("comments", []).append(comment)
-        self.save()
+        with self._mutate():
+            entry = self.scene(name)["variants"].setdefault(filename, {"critique": {}})
+            entry.setdefault("comments", []).append(comment)
         return comment["id"]
 
     def delete_comment(self, name: str, filename: str, comment_id: str):
-        entry = self.scene(name)["variants"].get(filename) or {}
-        entry["comments"] = [c for c in entry.get("comments") or [] if c.get("id") != comment_id]
-        self.save()
+        with self._mutate():
+            entry = self.scene(name)["variants"].get(filename) or {}
+            entry["comments"] = [c for c in entry.get("comments") or []
+                                 if c.get("id") != comment_id]
 
     def comments(self, name: str, filename: str) -> list:
         entry = self.scene(name)["variants"].get(filename) or {}
@@ -108,36 +146,38 @@ class ProjectState:
 
     def rename_scene(self, old: str, new: str):
         """Keep variants/summary/approval when a scene is renamed in the builder."""
-        if old == new or old not in self.data["scenes"]:
-            return
-        if new not in self.data["scenes"]:
-            self.data["scenes"][new] = self.data["scenes"].pop(old)
-        old_dir, new_dir = self.scene_dir(old), self.scene_dir(new)
-        if old_dir.exists() and not new_dir.exists():
-            new_dir.parent.mkdir(parents=True, exist_ok=True)
-            shutil.move(str(old_dir), str(new_dir))
-        self.save()
+        with self._lock:  # a no-op rename must not rewrite the file
+            self.reload()
+            if old == new or old not in self.data["scenes"]:
+                return
+            if new not in self.data["scenes"]:
+                self.data["scenes"][new] = self.data["scenes"].pop(old)
+            old_dir, new_dir = self.scene_dir(old), self.scene_dir(new)
+            if old_dir.exists() and not new_dir.exists():
+                new_dir.parent.mkdir(parents=True, exist_ok=True)
+                shutil.move(str(old_dir), str(new_dir))
+            self.save()
 
     def set_summary(self, name: str, summary: str, of: str | None = None,
                     changes: list | None = None, viewpoints: list | None = None):
-        entry = self.scene(name)
-        entry["summary"] = summary
-        entry["summary_of"] = of
-        entry["summary_stale"] = False
-        entry["state_changes"] = changes or []
-        entry["viewpoints"] = viewpoints or []
-        self.save()
+        with self._mutate():
+            entry = self.scene(name)
+            entry["summary"] = summary
+            entry["summary_of"] = of
+            entry["summary_stale"] = False
+            entry["state_changes"] = changes or []
+            entry["viewpoints"] = viewpoints or []
 
     def mark_summary_stale(self, name: str):
-        self.scene(name)["summary_stale"] = True
-        self.save()
+        with self._mutate():
+            self.scene(name)["summary_stale"] = True
 
     def approve(self, name: str, filename: str):
-        entry = self.scene(name)
-        if filename not in entry["variants"]:
-            raise KeyError(f"scene {name!r} has no variant {filename!r}")
-        entry["approved"] = filename
-        self.save()
+        with self._mutate():
+            entry = self.scene(name)
+            if filename not in entry["variants"]:
+                raise KeyError(f"scene {name!r} has no variant {filename!r}")
+            entry["approved"] = filename
 
     def scenes_meta(self) -> dict:
         """Per-scene memory the prompt builder consumes: summary + state changes."""
