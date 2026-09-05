@@ -770,6 +770,8 @@
   },
   "server": {
     "not_fab": "{path} is not a .fab file",
+    "forbidden_origin": "the studio only answers its own page on this address",
+    "bad_content_type": "expected Content-Type: application/json",
     "no_such_file": "file not found: {path}",
     "project_exists": "{path} already exists — open it instead of creating",
     "no_directory": "specify a directory for the new project",

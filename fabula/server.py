@@ -525,6 +525,32 @@ class Handler(BaseHTTPRequestHandler):
     def _error(self, message: str, status: int = 400):
         self._json({"error": message}, status)
 
+    def _loopback(self, netloc: str) -> bool:
+        """True for this very server's address — `127.0.0.1:8787` and friends."""
+        value = (netloc or "").strip().lower()
+        if value.startswith("["):                      # [::1]:8787
+            name, _, port = value.rpartition("]")
+            name, port = name[1:], port.lstrip(":")
+        else:
+            name, _, port = value.partition(":")
+        expected = str(self.server.server_address[1])
+        return name in ("127.0.0.1", "localhost", "::1") and (port or expected) == expected
+
+    def _same_origin(self) -> bool:
+        """Only the studio's own page may drive the API.
+
+        Binding to loopback keeps the network out but not the browser: any site
+        the author visits can POST to 127.0.0.1 without a preflight, and a
+        hostname rebound to 127.0.0.1 would read the answers as same-origin.
+        Checking Host stops the rebinding, checking Origin stops the cross-site
+        request — neither costs the real UI anything, since it is served from
+        this address itself.
+        """
+        if not self._loopback(self.headers.get("Host") or ""):
+            return False
+        origin = self.headers.get("Origin")
+        return not origin or self._loopback(urlparse(origin).netloc)
+
     def _body(self) -> dict:
         length = int(self.headers.get("Content-Length") or 0)
         if not length:
@@ -533,6 +559,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         url = urlparse(self.path)
+        if not self._same_origin():
+            return self._error(t("server.forbidden_origin"), 403)
         p = self.project
         q = parse_qs(url.query)
         i18n.set_lang(q.get("lang", [None])[0])
@@ -608,6 +636,13 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         url = urlparse(self.path)
+        if not self._same_origin():
+            return self._error(t("server.forbidden_origin"), 403)
+        # `application/json` is not a CORS-safelisted content type, so demanding
+        # it means a cross-site POST needs a preflight this server never answers
+        ctype = (self.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+        if ctype and ctype != "application/json":
+            return self._error(t("server.bad_content_type"), 415)
         p = self.project
         i18n.set_lang(parse_qs(url.query).get("lang", [None])[0])
         try:

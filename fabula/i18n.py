@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from contextvars import ContextVar
 from pathlib import Path
 
@@ -42,12 +43,19 @@ def available() -> list[dict]:
     return out
 
 
+# A locale code becomes a filename, and it arrives from `?lang=` on every HTTP
+# request, so it must never be able to carry path syntax out of LOCALES_DIR.
+_LANG_RE = re.compile(r"[A-Za-z0-9_-]{1,32}")
+
+
 def load(lang: str) -> dict:
     """Load a locale, re-reading the file when it changes on disk.
 
     The mtime check keeps a long-running server picking up locale edits
     (and plugin updates) without a restart.
     """
+    if not _LANG_RE.fullmatch(str(lang or "")):
+        return {}
     path = LOCALES_DIR / f"{lang}.json"
     try:
         mtime = path.stat().st_mtime_ns
@@ -63,6 +71,8 @@ def load(lang: str) -> dict:
 
 def resolve_lang(lang: str | None = None) -> str:
     lang = lang or _current.get() or os.environ.get("FABULA_LANG") or DEFAULT_LANG
+    if not _LANG_RE.fullmatch(str(lang or "")):
+        return FALLBACK_LANG
     if not (LOCALES_DIR / f"{lang}.json").exists():
         return FALLBACK_LANG
     return lang

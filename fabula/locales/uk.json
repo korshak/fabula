@@ -776,6 +776,8 @@
   },
   "server": {
     "not_fab": "{path} — це не .fab-файл",
+    "forbidden_origin": "студія відповідає лише власній сторінці за цією адресою",
+    "bad_content_type": "очікується Content-Type: application/json",
     "no_such_file": "файл не знайдено: {path}",
     "project_exists": "{path} вже існує — відкрий його замість створення",
     "no_directory": "вкажи теку для нового проєкту",
