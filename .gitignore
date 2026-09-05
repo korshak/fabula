@@ -11,4 +11,5 @@ design/
 # бібліотека книжок: рукописи автора лишаються локальними, приклад — у репозиторії
 books/*
 !books/Тіні пам'яті/
+!books/Shadows of Memory/
 !books/models.json

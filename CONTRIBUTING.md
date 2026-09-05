@@ -29,7 +29,9 @@ extras (see `[project.optional-dependencies]` in `pyproject.toml`).
 - `fabula/i18n.py` + `fabula/locales/` — all user-facing strings.
 - `fabula/library.py` — the book library: every book is one folder under
   `books/` (`book.fab` + optional `models.json` + generated `build/`).
-  `books/Тіні пам'яті/` is the sample book; the rest of `books/` is gitignored.
+  `books/Тіні пам'яті/` and `books/Shadows of Memory/` are the sample books
+  (the same story in Ukrainian and English, used for the README screenshots);
+  the rest of `books/` is gitignored.
 
 ## Ground rules
 

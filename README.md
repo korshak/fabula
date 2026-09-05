@@ -8,6 +8,33 @@ plus a local web studio for the human editor. You describe a book formally
 writes the prose, checks itself against the contracts, keeps memory between
 scenes, and a human approves the best variants into a manuscript.
 
+## What it looks like
+
+![The Scene tab: generated prose beside its contract, variants and the agent's memory](docs/img/scene.en.png)
+
+**Scene** — the prose gets the whole page, with the scene contract (POV, location,
+mandatory beats, bans), a variant switcher carrying validator verdicts, and the
+memory the agent carried in, on a rail beside it.
+
+![The Builder tab: form-based project editing with live validation](docs/img/builder.en.png)
+
+**Builder** — the book is edited as a form, not as syntax: POV and cast picked
+from declared entities, tension as sliders, live validation, and settings the
+tool works out from your own graph and offers to apply.
+
+![The Characters tab: profile cards and accumulated viewpoint synopses](docs/img/characters.en.png)
+
+**Characters** — a card per character, and under it the viewpoint synopses the
+summarizer writes after every scene: what they know, still don't know, believe,
+and feel. The agent reads this back before writing them again, so nobody acts on
+knowledge they could not have.
+
+![The Manuscript tab: approved scenes stitched into one text](docs/img/manuscript.en.png)
+
+**Manuscript** — approved scenes stitched into one text under their act and
+chapter headings, with a slug line above each scene, ready to copy, download as
+Markdown, export as EPUB, or hand to the translator agent.
+
 ## Install
 
 Only Python ≥ 3.10 is required — the core has zero dependencies (stdlib only).

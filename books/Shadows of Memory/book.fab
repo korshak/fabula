@@ -1,0 +1,65 @@
+// Sample Fabula book project — the English counterpart of "Тіні пам'яті".
+// Compiles to a JSON graph; the writing agent receives scenes as contracts.
+book "Shadows of Memory" {
+  voice: "third_person_limited";
+  tense: "past";
+  language: "en";
+  style_profile: "grim fantasy, dense sensory prose, short interior monologue";
+
+  world "Asteria" {
+    rule "Magic costs memory" {
+      description: "Every spell permanently erases one of the caster's memories. The stronger the spell, the dearer the memory.";
+      severity: "hard";
+    }
+    rule "Technology level" {
+      description: "Late medieval. No firearms, no printing, no mechanical clocks.";
+      severity: "hard";
+    }
+    rule "The dead do not return" {
+      description: "Necromancy does not exist. Death in this world is final.";
+      severity: "soft";
+    }
+  }
+
+  character "Alina" {
+    age: 24;
+    traits: ["impulsive", "loyal", "drawn to dangerous things"];
+    arc: "from naivety to bitter clear-sightedness";
+    never: "betray a close friend without an extreme reason";
+    must_resolve: "her fear of deep water";
+  }
+
+  character "Myron" {
+    age: 41;
+    traits: ["cautious", "cynical", "secretly sentimental"];
+    arc: "from detachment to sacrifice";
+  }
+
+  act 1 {
+    chapter 1 "The Market" {
+      scene "The Artefact" {
+        pov: "Alina";
+        location: "the capital market, the ragpickers' rows";
+        time: "morning, late autumn";
+        tension: [0.2, 0.4, 0.7, 0.5];
+        length: 900..1200;
+        variants: 2;
+        style_hints: ["the smells and sounds of the market", "a short interior monologue"];
+        show: "Alina sees the strange artefact for the first time and cannot look away";
+        show: "the seller names a price paid in memory, not in coin";
+        forbid: "any mention of firearms";
+        forbid: "modern slang";
+      }
+      scene "Flight Through the Alleys" {
+        pov: "Alina";
+        cast: ["Myron"];
+        location: "the alleys behind the market";
+        time: "the same morning";
+        tension: [0.6, 0.8, 0.9, 0.7];
+        length: 700..1000;
+        show: "Alina is chased, and meets Myron for the first time";
+        forbid: "magic worked without paying in memory";
+      }
+    }
+  }
+}
