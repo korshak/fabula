@@ -71,6 +71,9 @@ actually live:
 fabula models "Тіні пам'яті"
 ```
 
+Full details — where the config is looked up, every profile key, running a local
+model — are in [Models: setting up a provider](#models-setting-up-a-provider).
+
 **4. Run the studio**
 
 ```bash
@@ -230,20 +233,135 @@ the library outside the checkout.
 
 The server is pure stdlib; model SDKs are needed only for generation.
 
-## Models: plug in anything
+## Models: setting up a provider
 
-Providers are configured in `models.json` (next to the `.fab`, or one level up
-in `books/` as a library-wide default). Three types:
+Fabula never talks to a model until you point it at one. There are three
+backends; **`claude-cli` needs no API key at all** and is the default.
 
-| type | what it is | requirements |
+### Where the config lives
+
+Providers are described in `models.json`. Fabula looks for it in this order and
+takes the first hit:
+
+1. `books/<your-book>/models.json` — settings for that one book
+2. `books/models.json` — the library-wide default (this is the one shipped here)
+3. `./models.json` — the current working directory
+
+If none exists, a built-in default config is used, so a fresh clone already has
+all five profiles below. You only need to write a `models.json` to change
+something.
+
+Check what is live at any time — the command prints which config file it read:
+
+```bash
+fabula models my-book
+```
+
+```
+config: /path/to/fabula/books/models.json
+ → claude-cli   claude-cli opus                   ok
+   claude-api   anthropic  claude-opus-5          unavailable — SDK not installed — run: pip install anthropic
+   gpt          openai     gpt-5.2                unavailable — token not set — export OPENAI_API_KEY=...
+   gemini       openai     gemini-2.5-pro         unavailable — token not set — export GEMINI_API_KEY=...
+   ollama       openai     llama3.3               unavailable — no connection to http://localhost:11434/v1 — start the server or fix base_url
+```
+
+The arrow marks the default profile. In the studio the model is a dropdown in
+the header; in the CLI it is `-m <profile>`. Every scene variant records which
+provider wrote it.
+
+### `claude-cli` — no API key
+
+Uses the `claude` console tool you already have from Claude Code, in headless
+print mode, under your existing Claude Code authentication. Nothing to install
+beyond the CLI itself, and no key ever touches the config.
+
+```bash
+claude --version        # must be on PATH
+```
+
+```json
+{"type": "claude-cli", "model": "opus"}
+```
+
+`model` is passed straight through as `--model`, so anything the CLI accepts
+(`opus`, `sonnet`, `haiku`, a full model id) works; omit it to use the CLI's own
+default. Under the hood Fabula runs
+`claude -p --output-format json --max-turns 1`, feeding the prompt on stdin and
+the book bible via `--append-system-prompt`.
+
+If generation fails with an authentication error, run `claude` once
+interactively and log in.
+
+### `anthropic` — the SDK
+
+```bash
+pip install anthropic
+export ANTHROPIC_API_KEY=...      # or: ant auth login
+```
+
+```json
+{"type": "anthropic", "model": "claude-opus-5"}
+```
+
+`model` is required. This backend streams, uses adaptive thinking, caches the
+book-bible prefix between calls, and on `claude-opus-5` / `claude-fable-5`
+enables server-side refusal fallbacks. Credentials come from the SDK, so an
+`ant auth login` profile works without setting the variable at all.
+
+### `openai` — any OpenAI-compatible endpoint
+
+Plain HTTP against `{base_url}/chat/completions`, no SDK required. Works with
+OpenAI, OpenRouter, Gemini's compatibility endpoint, Ollama, llama.cpp,
+LM Studio, vLLM — anything speaking that protocol.
+
+```json
+{"type": "openai", "base_url": "https://api.openai.com/v1",
+ "model": "gpt-5.2", "api_key_env": "OPENAI_API_KEY"}
+```
+
+`base_url` and `model` are required. `api_key_env` names the **environment
+variable** holding the token — the token itself is read from the environment at
+call time and is never stored in `models.json`, which is what makes that file
+safe to commit. Local servers usually need no key: drop `api_key_env` and
+Fabula will probe the endpoint instead of looking for a token.
+
+```bash
+# a local model, no key at all
+ollama serve && ollama pull llama3.3
+```
+
+```json
+{"type": "openai", "base_url": "http://localhost:11434/v1", "model": "llama3.3"}
+```
+
+### Profile keys
+
+| key | applies to | meaning |
 |---|---|---|
-| `claude-cli` | the local `claude` console tool in print mode | Claude Code in PATH, no API key |
-| `anthropic` | Anthropic SDK, e.g. `claude-opus-5` | `pip install anthropic` + `ANTHROPIC_API_KEY` or `ant auth login` |
-| `openai` | any OpenAI-compatible endpoint: OpenAI, Gemini (compat), OpenRouter, Ollama… | a token in the env var named by `api_key_env` (local servers need none) |
+| `type` | all | `claude-cli` \| `anthropic` \| `openai` |
+| `model` | all | model id; required for `anthropic` and `openai` |
+| `base_url` | `openai` | endpoint root, must start with `http://` or `https://` |
+| `api_key_env` | `openai` | name of the env var holding the token (uppercase) |
+| `timeout` | all | seconds per call, default 900 |
+| `extra_params` | `openai` | object merged into the request body (`temperature`, `top_p`, …) |
+| `probe` | `openai` | force the reachability check on or off; on by default when there is no `api_key_env` |
 
-`fabula models my-book` lists profiles and their status. In the studio the
-model is a header dropdown; in the CLI it's `-m <profile>`. Every variant
-remembers which provider wrote it.
+Profile names are letters, digits and dashes. The top-level `"default"` key
+picks which profile is used when none is given; if it names a profile that does
+not exist, the first one wins. A full example lives in
+[books/models.json](books/models.json).
+
+### Mixing providers
+
+Profiles are switched per call, so nothing stops you from drafting scenes with
+one model and reviewing with another:
+
+```bash
+fabula write my-book -m claude-cli     # draft locally, no key
+fabula write my-book -m gpt            # a second opinion on the same scene
+fabula translate my-book --to en -m claude-api
+```
 
 ## CLI
 

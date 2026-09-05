@@ -69,6 +69,9 @@ export OPENAI_API_KEY=...      # або GEMINI_API_KEY, OpenRouter, …
 fabula models "Тіні пам'яті"
 ```
 
+Подробиці — де шукається конфіг, усі поля профілю, запуск локальної моделі — у
+розділі [Моделі: як підключити провайдера](#моделі-як-підключити-провайдера).
+
 **4. Запустити студію**
 
 ```bash
@@ -237,36 +240,135 @@ fabula serve "Тіні пам'яті"     # книга-приклад із ре�
 > У `build/` зараз лежать **демо-варіанти** сцени «Артефакт» (позначені в тексті),
 > щоб інтерфейс було видно одразу. Видали `build/` або перегенеруй сцену — і вони зникнуть.
 
-## Моделі: підключай будь-яку
+## Моделі: як підключити провайдера
 
-Провайдери описуються в [models.json](books/models.json) (лежить поруч із `.fab`
-або рівнем вище — у `books/`, як спільна умова для всієї бібліотеки). Три типи:
+Fabula не звертається до моделі, доки ви не вкажете, до якої саме. Бекендів три;
+**`claude-cli` не потребує API-ключа взагалі** і стоїть за замовчуванням.
 
-| type | що це | що потрібно |
-|---|---|---|
-| `claude-cli` | локальна консольна тула `claude` у print-режимі (`claude -p`) | Claude Code у PATH, без API-ключа |
-| `anthropic` | Anthropic SDK, модель на кшталт `claude-opus-5` | `pip install anthropic` + `ANTHROPIC_API_KEY` або `ant auth login` |
-| `openai` | будь-який OpenAI-сумісний endpoint: OpenAI, Gemini (compat), OpenRouter, Ollama... | токен у змінній з `api_key_env` (для локальних — не потрібен) |
+### Де лежить конфіг
 
-```json
-{
-  "default": "claude-cli",
-  "providers": {
-    "claude-cli": {"type": "claude-cli", "model": "opus"},
-    "claude-api": {"type": "anthropic", "model": "claude-opus-5"},
-    "gpt":    {"type": "openai", "base_url": "https://api.openai.com/v1",
-               "model": "gpt-5.2", "api_key_env": "OPENAI_API_KEY"},
-    "ollama": {"type": "openai", "base_url": "http://localhost:11434/v1", "model": "llama3.3"}
-  }
-}
+Провайдери описуються в `models.json`. Fabula шукає його в такому порядку і бере
+перше влучання:
+
+1. `books/<ваша-книга>/models.json` — налаштування однієї книги
+2. `books/models.json` — спільна умова для всієї бібліотеки (саме він у репозиторії)
+3. `./models.json` — поточна тека
+
+Якщо файлу немає ніде, вмикається вбудований конфіг за замовчуванням — тож у
+свіжому клоні всі п'ять профілів уже є. Писати `models.json` треба лише тоді,
+коли щось змінюєте.
+
+Перевірити стан будь-коли — команда друкує ще й те, який конфіг прочитала:
+
+```bash
+fabula models моя-книга
 ```
 
-`fabula models моя-книга` показує всі профілі та їхній статус
-(чи є тула/SDK/токен). У веб-інтерфейсі модель обирається селектором у шапці;
-у CLI — прапорцем `-m`. Кожен варіант сцени пам'ятає, який провайдер його написав.
+```
+конфіг: /шлях/до/fabula/books/models.json
+ → claude-cli   claude-cli opus                   ok
+   claude-api   anthropic  claude-opus-5          недоступний — SDK не встановлено — виконай: pip install anthropic
+   gpt          openai     gpt-5.2                недоступний — токен не задано — export OPENAI_API_KEY=...
+   gemini       openai     gemini-2.5-pro         недоступний — токен не задано — export GEMINI_API_KEY=...
+   ollama       openai     llama3.3               недоступний — немає з'єднання з http://localhost:11434/v1 — запусти сервер або виправ base_url
+```
 
-Anthropic-провайдер використовує стрімінг, адаптивне мислення, кешований префікс
-«біблії книги» і server-side refusal fallbacks (на opus-5/fable-5).
+Стрілка позначає профіль за замовчуванням. У студії модель обирається селектором
+у шапці, у CLI — прапорцем `-m <профіль>`. Кожен варіант сцени пам'ятає, який
+провайдер його написав.
+
+### `claude-cli` — без API-ключа
+
+Використовує консольну тулу `claude`, яка у вас уже є від Claude Code, у
+headless print-режимі й під вашою наявною автентифікацією Claude Code. Нічого
+встановлювати, крім самої CLI, і жоден ключ не потрапляє в конфіг.
+
+```bash
+claude --version        # має бути в PATH
+```
+
+```json
+{"type": "claude-cli", "model": "opus"}
+```
+
+`model` передається як `--model`, тож підходить усе, що приймає CLI (`opus`,
+`sonnet`, `haiku`, повний id моделі); можна не вказувати — тоді буде дефолт самої
+CLI. Під капотом Fabula запускає
+`claude -p --output-format json --max-turns 1`, подає промпт у stdin, а «біблію
+книги» — через `--append-system-prompt`.
+
+Якщо генерація падає з помилкою автентифікації — запустіть `claude` один раз
+інтерактивно й залогіньтесь.
+
+### `anthropic` — через SDK
+
+```bash
+pip install anthropic
+export ANTHROPIC_API_KEY=...      # або: ant auth login
+```
+
+```json
+{"type": "anthropic", "model": "claude-opus-5"}
+```
+
+`model` обов'язковий. Цей бекенд стрімить, використовує адаптивне мислення,
+кешує префікс «біблії книги» між викликами, а на `claude-opus-5` /
+`claude-fable-5` вмикає server-side refusal fallbacks. Креденшели бере SDK, тож
+профіль з `ant auth login` працює й без заданої змінної.
+
+### `openai` — будь-який OpenAI-сумісний endpoint
+
+Звичайний HTTP до `{base_url}/chat/completions`, без SDK. Працює з OpenAI,
+OpenRouter, compat-endpoint Gemini, Ollama, llama.cpp, LM Studio, vLLM — усім,
+що говорить цим протоколом.
+
+```json
+{"type": "openai", "base_url": "https://api.openai.com/v1",
+ "model": "gpt-5.2", "api_key_env": "OPENAI_API_KEY"}
+```
+
+`base_url` і `model` обов'язкові. `api_key_env` — це **ім'я змінної середовища**
+з токеном; сам токен читається зі середовища в момент виклику й ніколи не
+зберігається в `models.json`, завдяки чому цей файл безпечно комітити. Локальним
+серверам ключ зазвичай не потрібен: приберіть `api_key_env`, і Fabula замість
+пошуку токена просто перевірить, чи endpoint відповідає.
+
+```bash
+# локальна модель, узагалі без ключа
+ollama serve && ollama pull llama3.3
+```
+
+```json
+{"type": "openai", "base_url": "http://localhost:11434/v1", "model": "llama3.3"}
+```
+
+### Поля профілю
+
+| поле | для кого | що означає |
+|---|---|---|
+| `type` | усі | `claude-cli` \| `anthropic` \| `openai` |
+| `model` | усі | id моделі; обов'язковий для `anthropic` і `openai` |
+| `base_url` | `openai` | корінь endpoint, має починатися з `http://` або `https://` |
+| `api_key_env` | `openai` | ім'я змінної середовища з токеном (великими літерами) |
+| `timeout` | усі | секунд на виклик, за замовчуванням 900 |
+| `extra_params` | `openai` | об'єкт, що домішується в тіло запиту (`temperature`, `top_p`, …) |
+| `probe` | `openai` | примусово вмикає чи вимикає перевірку доступності; увімкнена, коли немає `api_key_env` |
+
+Назви профілів — літери, цифри й дефіси. Ключ верхнього рівня `"default"`
+визначає, який профіль береться, коли не вказано інший; якщо він називає
+неіснуючий профіль, буде взято перший. Повний приклад —
+[books/models.json](books/models.json).
+
+### Комбінування провайдерів
+
+Профіль обирається на кожен виклик, тож ніщо не заважає чернетити одною моделлю,
+а перевіряти іншою:
+
+```bash
+fabula write моя-книга -m claude-cli     # чернетка локально, без ключа
+fabula write моя-книга -m gpt            # друга думка про ту саму сцену
+fabula translate моя-книга --to en -m claude-api
+```
 
 ## CLI
 
