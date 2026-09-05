@@ -29,7 +29,15 @@ from .state import ProjectState
 
 
 def _load(path: str) -> dict:
-    source = Path(path).read_text(encoding="utf-8")
+    """Compile a book from disk, or bow out with a sentence.
+
+    A mistyped book name is the most ordinary mistake there is, and it used to
+    surface as a bare Python traceback — the first thing a newcomer saw.
+    """
+    try:
+        source = Path(path).read_text(encoding="utf-8")
+    except OSError:
+        raise SystemExit(t("server.no_such_file", path=str(path)))
     return compile_source(source)
 
 
@@ -358,7 +366,7 @@ def main(argv=None):
 
     p = sub.add_parser("init", help="scaffold a new book project (book.fab + models.json)")
     p.add_argument("directory", help="book name (created in books/) or a path")
-    p.add_argument("--lang", help="interface/starter language (default: FABULA_LANG env or uk)")
+    p.add_argument("--lang", help="interface/starter language (default: FABULA_LANG env, else the system locale)")
     p.add_argument("--template", help="plot template id (see `fabula templates`)")
     p.add_argument("--from-notes", metavar="FILE",
                    help="draft the whole book from a file with raw author notes "

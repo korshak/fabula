@@ -6,7 +6,8 @@ no code changes needed. Keys missing from a locale fall back to English,
 so partial translations still work.
 
 Language resolution order: explicit argument > set_lang() (per request /
-per CLI run) > FABULA_LANG env var > "uk".
+per CLI run) > FABULA_LANG env var > the system locale, when we ship it >
+English.
 
 Note: prompts sent to the writing model (fabula/prompts.py) are NOT part
 of the UI locale — their language follows the book being written, not the
@@ -16,22 +17,33 @@ interface.
 from __future__ import annotations
 
 import json
+import locale
 import os
 import re
 from contextvars import ContextVar
 from pathlib import Path
 
 LOCALES_DIR = Path(__file__).parent / "locales"
-DEFAULT_LANG = "uk"
 FALLBACK_LANG = "en"
 
 _current: ContextVar = ContextVar("fabula_lang", default=None)
 _cache: dict = {}
 
 
-class _SafeDict(dict):
-    def __missing__(self, key):
-        return "{" + key + "}"
+# Locale values are contributor-supplied data, and prose is full of braces a
+# translator has no reason to escape ("add a matching '}'"). So placeholders
+# are filled by substitution rather than str.format: a stray brace is literal
+# text, and an unknown placeholder renders as itself instead of raising.
+_PLACEHOLDER_RE = re.compile(r"\{([A-Za-z_][A-Za-z0-9_]*)\}")
+
+
+def _fill(template: str, params: dict) -> str:
+    """Also used for the format strings a translation glossary carries back
+    from the model (fabula/translator.py), which are untrusted for the same
+    reason: a stray brace must not take down a manuscript build."""
+    return _PLACEHOLDER_RE.sub(
+        lambda m: str(params[m.group(1)]) if m.group(1) in params else m.group(0),
+        template)
 
 
 def available() -> list[dict]:
@@ -69,8 +81,32 @@ def load(lang: str) -> dict:
     return data
 
 
+def system_lang() -> str | None:
+    """The two-letter code of the machine's locale, if we ship that locale.
+
+    Fabula was written in Ukrainian, but it is not a Ukrainian-only tool: a
+    contributor on an English machine should not have to discover FABULA_LANG
+    to read their own diagnostics. Anything we do not ship falls through to
+    English rather than guessing at a near-match.
+    """
+    for var in ("LC_ALL", "LC_MESSAGES", "LANG"):
+        value = (os.environ.get(var) or "").strip()
+        if value:
+            break
+    else:
+        try:  # no env vars: ask the platform (Windows, and a plain macOS GUI login)
+            value = locale.getlocale()[0] or ""
+        except (ValueError, TypeError):
+            value = ""
+    code = re.split(r"[._@-]", value.strip())[0].lower()
+    if not code or code in ("c", "posix"):
+        return None
+    return code if _LANG_RE.fullmatch(code) and (LOCALES_DIR / f"{code}.json").exists() else None
+
+
 def resolve_lang(lang: str | None = None) -> str:
-    lang = lang or _current.get() or os.environ.get("FABULA_LANG") or DEFAULT_LANG
+    lang = (lang or _current.get() or os.environ.get("FABULA_LANG")
+            or system_lang() or FALLBACK_LANG)
     if not _LANG_RE.fullmatch(str(lang or "")):
         return FALLBACK_LANG
     if not (LOCALES_DIR / f"{lang}.json").exists():
@@ -109,7 +145,7 @@ def t(_key: str, _lang: str | None = None, **params) -> str:
     value, _ = _find(_key, _lang)
     if not isinstance(value, str):
         return _key
-    return value.format_map(_SafeDict(params))
+    return _fill(value, params)
 
 
 _PLURAL_RULES = {
@@ -127,7 +163,7 @@ def tn(_key: str, n: int, _lang: str | None = None, **params) -> str:
     rule_id = load(lg).get("_meta", {}).get("plural", "en")
     rule = _PLURAL_RULES.get(rule_id, _PLURAL_RULES["en"])
     idx = min(rule(int(n)), len(forms) - 1)
-    return str(forms[idx]).format_map(_SafeDict({"n": n, **params}))
+    return _fill(str(forms[idx]), {"n": n, **params})
 
 
 def bundle(lang: str | None = None) -> dict:
