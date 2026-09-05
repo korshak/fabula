@@ -1,0 +1,1039 @@
+{
+  "_meta": {
+    "name": "English",
+    "plural": "en"
+  },
+  "ui": {
+    "tabs": {
+      "builder": "Builder",
+      "board": "Board",
+      "source": "Source",
+      "scene": "Scene",
+      "characters": "Characters",
+      "manuscript": "Manuscript",
+      "stats": "Statistics"
+    },
+    "header": {
+      "model": "Model",
+      "lang": "Language",
+      "progress": "scenes approved: {a}/{n}",
+      "not_compiling": "(does not compile)",
+      "compile_title": "Source compile status",
+      "unavailable": "(unavailable)"
+    },
+    "status": {
+      "draft": "draft",
+      "gen": "generated",
+      "appr": "approved"
+    },
+    "rail": {
+      "toc": "Contents",
+      "approved_short": "{a}/{n} appr.",
+      "act": "Act {n}",
+      "chapter": "Chapter {n} · {title}",
+      "characters": "Characters",
+      "world": "World · {name}",
+      "none_yet": "No one yet.",
+      "no_scenes": "No scenes yet. Add structure in the Builder.",
+      "not_compiling": "The source does not compile — fix the errors in the Source tab.",
+      "burger": "Show contents"
+    },
+    "source": {
+      "save": "Save",
+      "fix": "Fix with agent",
+      "fix_title": "The agent will repair the source from the diagnostics",
+      "download": "Download .fab",
+      "download_title": "Save the current project code as a file",
+      "downloaded": "Project code downloaded as a file.",
+      "editor_label": ".fab source",
+      "clean": "✓ Source is clean — no findings.",
+      "jump_title": "Go to line {line}",
+      "saved_ok": "Saved — source is clean.",
+      "saved_err": "Saved, but there are compile errors.",
+      "save_fail": "Save failed: {e}",
+      "fixed_ok": "The agent fixed the source — review it and press Save.",
+      "fixed_partial": "The agent proposed a fix, but errors remain.",
+      "fix_fail": "Fix failed: {e}",
+      "error": "Error: {e}"
+    },
+    "scene": {
+      "empty_title": "No scenes",
+      "empty_text": "First describe the book's structure — acts, chapters, and scenes with contracts. The Builder is the easiest place to do it.",
+      "open_builder": "Open the Builder",
+      "eyebrow": "Act {act} · Chapter {ch} \"{title}\"",
+      "pov": "POV",
+      "location": "Location",
+      "time": "Time",
+      "length": "Length",
+      "length_words": "{a}–{b} words",
+      "variants": "Variants",
+      "cast": "On page",
+      "kill": "Dies",
+      "memory": "Agent memory: {s}",
+      "memory_stale": "(may be stale — refreshes after generation or approving with an available model)",
+      "resummarizing": "Updating scene memory…",
+      "generate": "Generate scene",
+      "regenerate": "Regenerate",
+      "generating": "Generating…",
+      "fix_first": "fix the compile errors first",
+      "prompts": "Show agent prompts",
+      "prev": "Previous scene",
+      "next": "Next scene",
+      "not_written_title": "This scene is not written yet",
+      "not_written_text": "The agent will write {v} against the scene contract, self-check each one for violations, and save a summary for the next scenes' memory.",
+      "variant_one": "a variant",
+      "variants_n": "{n} variants",
+      "approve": "Approve",
+      "approved": "✓ approved",
+      "approve_ok": "\"{scene}\" — approved {file}.",
+      "approve_fail": "Could not approve: {e}",
+      "words": "≈{n} words",
+      "read_fail": "(could not read: {e})",
+      "gen_done": "\"{name}\" — done.",
+      "gen_fail": "\"{name}\": {e}",
+      "gen_start_fail": "Could not start generation: {e}",
+      "ok_mark": "✓ ok",
+      "edit": "Edit",
+      "edit_save": "Save text",
+      "edit_cancel": "Cancel",
+      "edited": "edited",
+      "edit_ok": "Text saved.",
+      "edit_fail": "Could not save: {e}",
+      "rewrite": "Rewrite with notes",
+      "rewrite_ph": "what to change — e.g.: fewer dialogues, add rain, slower pace",
+      "rewrite_btn": "Regenerate with notes",
+      "revisions_n": "revisions: {n}",
+      "comment_btn": "Comment",
+      "comment_ph": "what exactly bothers you in this passage…",
+      "comment_save": "Save comment",
+      "comment_added": "Comment added.",
+      "comment_deleted": "Comment removed.",
+      "comment_del_title": "Remove comment",
+      "comments_hdr": "Comments",
+      "rewrite_by_comments": "Apply notes ({n})",
+      "comments_hint": "Select a passage of text to leave a comment.",
+      "spec": "Scene contract",
+      "show": "Show",
+      "forbid": "Forbid",
+      "beats_n": [
+        "{n} beat",
+        "{n} beats"
+      ],
+      "focus": "Read",
+      "focus_exit": "Leave reading",
+      "focus_title": "Hide the panels and keep only the text (Esc to leave)",
+      "editing": "editing",
+      "md_bold": "Bold ({k}B)",
+      "md_bold_ab": "B",
+      "md_italic": "Italic ({k}I)",
+      "md_italic_ab": "I",
+      "md_break": "Scene divider",
+      "md_mode_title": "Switch between the prose and its Markdown",
+      "md_source": "Markdown",
+      "md_rich": "Prose",
+      "md_strike": "Strikethrough",
+      "md_strike_ab": "S",
+      "md_code": "Inline code",
+      "md_code_ph": "code",
+      "md_ul": "Bullet list",
+      "md_ol": "Numbered list",
+      "md_link": "Link",
+      "md_table": "Table",
+      "md_table_a": "Column",
+      "md_table_b": "Column",
+      "md_block": "Block type",
+      "md_block_p": "Paragraph",
+      "md_block_h1": "Heading 1",
+      "md_block_h2": "Heading 2",
+      "md_block_h3": "Heading 3",
+      "md_block_quote": "Quote",
+      "md_block_pre": "Code block",
+      "md_link_new": "new link",
+      "md_link_save": "Save",
+      "md_link_remove": "Remove"
+    },
+    "manuscript": {
+      "loading": "Assembling the manuscript…",
+      "empty_title": "The manuscript is empty",
+      "empty_text": "Approved scenes will appear here, stitched into one text. Generate a scene and approve the best variant.",
+      "to_scenes": "To scenes",
+      "words": "≈{n} words",
+      "missing": "missing scenes: {list}",
+      "complete": "✓ all scenes in place",
+      "copy": "Copy",
+      "download": "Download .md",
+      "copied": "Text copied.",
+      "error_title": "Error",
+      "epub": "Download EPUB",
+      "original": "Original",
+      "translations": "Translations",
+      "add_lang_ph": "en, de, pl…",
+      "translate_btn": "Translate",
+      "update_btn": "Update translation",
+      "retranslate_btn": "Retranslate all",
+      "tr_status": "{done}/{total} scenes translated",
+      "tr_stale": "changed since translation: {n}",
+      "tr_missing_n": "not translated: {n}",
+      "tr_fresh": "✓ translation is up to date",
+      "tr_empty_title": "No translation yet",
+      "tr_empty_text": "The translator agent will carry the approved scenes into the chosen language, keeping the author's voice and style. Names, terms, and chapter titles go through a glossary so they stay consistent across the whole book.",
+      "tr_stale_hint": "Some scenes changed after they were translated — update the translation.",
+      "tr_started": "translation started",
+      "tr_done_toast": "translation updated",
+      "tr_fail": "translation failed: {e}",
+      "bad_lang": "enter a language code, e.g. en, de or pl"
+    },
+    "builder": {
+      "sec_book": "Book",
+      "sec_world": "World",
+      "sec_chars": "Characters",
+      "sec_structure": "Structure",
+      "rules_n": [
+        "{n} rule",
+        "{n} rules"
+      ],
+      "scenes_n": [
+        "{n} scene",
+        "{n} scenes"
+      ],
+      "beats_n": [
+        "{n} beat",
+        "{n} beats"
+      ],
+      "book_title": "Book title",
+      "voice": "Narration",
+      "voice_limited": "third person, limited",
+      "voice_omniscient": "third person, omniscient",
+      "voice_first": "first person",
+      "tense": "Tense",
+      "tense_past": "past",
+      "tense_present": "present",
+      "language": "Language",
+      "style": "Style profile — tone, rhythm, manner",
+      "style_ph": "e.g.: grim fantasy, dense sensory prose",
+      "add_world": "＋ add world",
+      "remove_world": "✕ remove world",
+      "remove_world_title": "Remove the world together with its rules",
+      "world_name": "World name",
+      "world_hint": "The world and its rules are hard boundaries the agent must not break.",
+      "add_rule": "＋ rule",
+      "rule": "Rule",
+      "severity": "Severity",
+      "sev_hard": "hard — must never be broken",
+      "sev_soft": "soft — should be followed",
+      "rule_desc": "Description — this is what the agent relies on",
+      "del_rule": "Delete rule",
+      "add_char": "＋ character",
+      "name": "Name",
+      "age": "Age",
+      "arc": "Arc",
+      "arc_ph": "e.g.: from naivety to sobriety",
+      "traits": "Traits",
+      "csv_hint": "— comma-separated",
+      "never": "NEVER does",
+      "never_add": "restriction",
+      "must": "Must resolve within the book",
+      "must_add": "thread",
+      "del_char": "Delete character",
+      "appearance": "Appearance",
+      "appearance_ph": "what the eye catches first",
+      "voice_field": "Voice and speech — habits, pet phrases",
+      "voice_ph": "e.g.: short sentences, army slang, never says 'I'm sorry'",
+      "wants": "Wants",
+      "fears": "Fears",
+      "secret": "Secret",
+      "sec_locations": "Locations",
+      "add_location": "＋ location",
+      "del_location": "Delete location",
+      "location_name": "Location",
+      "loc_desc": "Description",
+      "senses_hint": "Five senses — the cheapest way to make the prose feel real. The agent uses them whenever a scene is set here.",
+      "sense_smell": "How does it smell?",
+      "sense_sound": "What is heard?",
+      "sense_touch": "What does it feel like?",
+      "sense_taste": "What does it taste of?",
+      "sense_sight": "What does the eye catch?",
+      "locations_hint": "Declared locations feed the agent's book bible. A scene's free-text location still works on its own.",
+      "sec_threads": "Plot threads",
+      "add_thread": "＋ thread",
+      "del_thread": "Delete thread",
+      "thread_name": "Thread",
+      "thread_desc": "Description — what this line is about and where it must arrive",
+      "threads_hint": "Mark in each scene which threads it advances — the compiler will warn when a thread goes silent for too long.",
+      "scene_threads": "Advances threads",
+      "no_threads": "declare threads first",
+      "add_act": "＋ act",
+      "add_chapter": "＋ chapter",
+      "add_scene": "＋ scene",
+      "act": "Act {n}",
+      "chapter": "Chapter {n}",
+      "structure_hint": "Add the first act — a chapter and a scene will be created with it.",
+      "del_act": "Delete act",
+      "del_chapter": "Delete chapter",
+      "del_scene": "Delete scene",
+      "scene": "Scene",
+      "pov": "POV — whose eyes",
+      "no_pov": "no POV",
+      "pov_of": "POV {name}",
+      "variants": "Variants",
+      "location": "Location",
+      "time": "Time",
+      "words_from": "Words from",
+      "words_to": "to",
+      "cast": "On page besides POV",
+      "kill": "Die in this scene",
+      "no_chars": "add characters first",
+      "tension": "Tension curve — from the start to the end of the scene",
+      "add_point": "＋ point",
+      "del_point": "Remove the last point",
+      "hints": "Style hints",
+      "show": "Must happen on the page",
+      "show_add": "beat",
+      "forbid": "Forbidden in this scene",
+      "forbid_add": "restriction",
+      "remove": "Remove",
+      "save": "Save to source",
+      "unsaved": "unsaved changes",
+      "canonical_note": "Saving rewrites the .fab in canonical form — comments attached to blocks are preserved.",
+      "valid": "✓ Project is valid — no findings.",
+      "gen_src": "Generated source",
+      "saved_ok": "Saved to source.",
+      "saved_warn": "Saved, but there are findings — see below the form.",
+      "save_fail": "Save failed: {e}",
+      "target_words": "Target words",
+      "thread_gap": "Thread silence",
+      "revisions": "Revisions",
+      "errors_n": [
+        "{n} error",
+        "{n} errors"
+      ],
+      "warnings_n": [
+        "{n} warning",
+        "{n} warnings"
+      ]
+    },
+    "job": {
+      "generate": "generation",
+      "fix": "fixing",
+      "summarize": "memory",
+      "revise": "edits",
+      "draft": "book from notes",
+      "translate": "translation"
+    },
+    "board": {
+      "hint": "Drag cards to reorder scenes — within a chapter or between chapters. Click a card to open the scene.",
+      "save": "Save order",
+      "saved": "Scene order saved to source.",
+      "save_fail": "Could not save: {e}",
+      "unsaved": "unsaved order changes",
+      "empty": "No scenes yet — add structure in the Builder or run the Wizard.",
+      "words": "{n} w.",
+      "threads_hdr": "Thread map",
+      "threads_hint": "A dot means the scene advances the thread. Long empty stretches are where readers lose the thread.",
+      "no_threads": "No plot threads declared. Add them in the Builder — the agent will weave them and the compiler will watch the gaps.",
+      "act_ch": "Act {act} · Ch. {ch}"
+    },
+    "chars": {
+      "empty_title": "No characters",
+      "empty_text": "Add characters in the Builder — this page will collect everything the book knows about each of them.",
+      "profile": "Profile",
+      "appearance": "Appearance",
+      "voice": "Voice and speech",
+      "wants": "Wants",
+      "fears": "Fears",
+      "secret": "Secret",
+      "arc": "Arc",
+      "traits": "Traits",
+      "never": "Never",
+      "must": "Must resolve",
+      "age": "Age: {age}",
+      "appears": "Appears in {n} scenes",
+      "viewpoints_hdr": "Viewpoint synopses — the story through their eyes",
+      "viewpoints_hint": "Written by the summarizer after each generated scene: what this character knows, believes, and feels. The agent reads this before writing them again.",
+      "no_viewpoints": "No viewpoint entries yet — they appear after scenes are generated.",
+      "ledger_dead": "died in \"{scene}\"",
+      "ledger_alive": "alive"
+    },
+    "stats": {
+      "loading": "Counting words…",
+      "empty_title": "Nothing to count yet",
+      "empty_text": "Statistics appear once the agent starts writing scenes.",
+      "total": "words in the manuscript",
+      "target": "of the target",
+      "scenes_done": "scenes approved",
+      "per_scene": "Words per scene",
+      "per_day": "Words written per day",
+      "per_day_hint": "Every generated or revised variant counts toward its day.",
+      "chosen": "approved / chosen variant",
+      "no_history": "No writing history yet."
+    },
+    "projects": {
+      "btn_title": "Projects — switch, open, create",
+      "title": "Projects",
+      "current": "current",
+      "missing": "file is missing",
+      "library": "Every book lives in {path}",
+      "open_hdr": "Open another .fab",
+      "path_ph": "book name in books/, or a path to book.fab",
+      "open_btn": "Open",
+      "new_hdr": "New book",
+      "dir_ph": "name for the new book, e.g. my-novel",
+      "new_btn": "Create",
+      "switched": "Switched to \"{title}\".",
+      "switch_fail": "Could not open: {e}",
+      "created": "Project created — the wizard will help set it up.",
+      "create_fail": "Could not create: {e}",
+      "empty": "No other projects yet.",
+      "draft_hdr": "Book from notes",
+      "draft_btn": "✒ Drop your notes — the agent fills it all in"
+    },
+    "dictate": {
+      "start": "Dictate by voice",
+      "stop": "Stop dictation",
+      "denied": "The browser denied microphone access — allow it for this site in the settings.",
+      "fail": "Dictation failed: {e}"
+    },
+    "draft": {
+      "title": "Book from notes",
+      "hint": "Paste your raw notes: ideas, fragments, characters, a plot sketch — in any shape. The agent will work out the title, premise, world, characters, locations, plot threads, and scenes. You can refine everything in the Builder afterwards.",
+      "dir": "New project folder",
+      "lang": "Book language",
+      "notes": "Notes",
+      "notes_ph": "Everything you have: genre, heroes, single scenes, phrases, mood…",
+      "create": "Draft the book",
+      "need_both": "Both a project folder and notes are required.",
+      "starting": "Starting…",
+      "working_hdr": "The agent is drafting the book",
+      "working": "This takes a few minutes: the model reads your notes and fills in every field — title, premise, world, characters, locations, threads, and scenes. The project opens by itself when it is done.",
+      "hide": "Hide — it keeps working in the background",
+      "started": "The agent is reading your notes and drafting the book — progress shows at the bottom right.",
+      "done": "Done: \"{title}\". The project is open — review the structure on the Board.",
+      "fail": "Could not draft the book: {e}"
+    },
+    "wizard": {
+      "open": "✨ New book wizard",
+      "title": "New book wizard",
+      "step": "Step {n} of {total}",
+      "next": "Next",
+      "back": "Back",
+      "finish": "Create the book",
+      "cancel": "Cancel",
+      "s1_title": "The premise",
+      "s1_hint": "One honest sentence: a character, a situation, an objective, an opponent, a disaster. Everything else grows from it.",
+      "s1_book_title": "Book title",
+      "s1_premise": "Premise — one sentence",
+      "s1_premise_ph": "e.g.: A young thief buys a artifact with a memory she didn't agree to sell — and must undo the trade before she forgets who she is.",
+      "s1_style": "Style profile",
+      "s1_style_ph": "tone, rhythm, manner — e.g.: grim fantasy, dense sensory prose",
+      "s1_language": "Book language (code)",
+      "s2_title": "Who is in it",
+      "s2_hint": "Two or three people are enough to start. The first one becomes the default POV.",
+      "s2_add": "＋ character",
+      "s2_name": "Name",
+      "s2_arc": "Arc — who they become",
+      "s2_wants": "Wants",
+      "s2_fears": "Fears",
+      "s3_title": "The shape of the story",
+      "s3_hint": "A plot template unfolds into acts and scene stubs with starter beats. You will rename, reorder, and rewrite everything — it is scaffolding, not a cage.",
+      "s3_none": "Empty structure (one act, one scene)",
+      "s3_stages": "{n} scenes in {a} acts",
+      "created": "Book created — the structure is in the Builder and on the Board.",
+      "create_fail": "Could not create: {e}",
+      "premise_as_comment": "Premise: {premise}"
+    },
+    "load_fail": "Could not load the project"
+  },
+  "seed": {
+    "book": "New book",
+    "world": "World",
+    "rule": "New rule",
+    "character": "New character",
+    "scene": "New scene",
+    "chapter": "New chapter",
+    "location": "New location",
+    "thread": "New thread"
+  },
+  "templates": {
+    "_chapter": "Chapter {n}",
+    "universal": {
+      "name": "Universal (three acts)",
+      "desc": "The hero's journey rejigged into genre-neutral terms — fits almost any novel.",
+      "acts": [
+        {
+          "title": "The Status Quo",
+          "scenes": [
+            [
+              "Status quo",
+              "show the hero's ordinary world and the lack or flaw that quietly hurts them"
+            ],
+            [
+              "The complication",
+              "an event breaks the routine and puts a demand on the hero they cannot ignore"
+            ],
+            [
+              "Crossing the threshold",
+              "the hero makes the choice that cuts off the way back"
+            ]
+          ]
+        },
+        {
+          "title": "The New World",
+          "scenes": [
+            [
+              "New rules",
+              "the hero collides with the logic of the new situation and pays for not knowing it"
+            ],
+            [
+              "External obstacles",
+              "an opponent or circumstance visibly blocks the goal and raises the price"
+            ],
+            [
+              "Temptation",
+              "the hero is offered an easy way out that betrays what they value"
+            ],
+            [
+              "Dark moment",
+              "the plan collapses; the hero loses something real and faces their flaw"
+            ]
+          ]
+        },
+        {
+          "title": "The Final Conflict",
+          "scenes": [
+            [
+              "Final conflict",
+              "the decisive confrontation where the hero acts from their changed self"
+            ],
+            [
+              "Epilogue",
+              "show the new status quo and the cost that was paid"
+            ]
+          ]
+        }
+      ]
+    },
+    "heros_journey": {
+      "name": "Hero's Journey",
+      "desc": "Campbell's monomyth in three movements: departure, initiation, return.",
+      "acts": [
+        {
+          "title": "Departure",
+          "scenes": [
+            [
+              "Ordinary world",
+              "ground the hero in daily life so the coming break is felt"
+            ],
+            [
+              "Call to adventure",
+              "a challenge or invitation disrupts the ordinary world"
+            ],
+            [
+              "Refusal of the call",
+              "the hero hesitates — show the fear or duty that holds them"
+            ],
+            [
+              "Meeting the mentor",
+              "someone gives the hero the tool, knowledge, or push they need"
+            ],
+            [
+              "Crossing the first threshold",
+              "the hero commits and enters the special world"
+            ]
+          ]
+        },
+        {
+          "title": "Initiation",
+          "scenes": [
+            [
+              "Tests, allies, enemies",
+              "the special world tests the hero; alliances and enmities form"
+            ],
+            [
+              "Approach to the inmost cave",
+              "preparations and doubts before the central ordeal"
+            ],
+            [
+              "The ordeal",
+              "the hero faces their greatest fear; something dies — literally or not"
+            ],
+            [
+              "The reward",
+              "the hero seizes what they came for, but the price is now visible"
+            ]
+          ]
+        },
+        {
+          "title": "Return",
+          "scenes": [
+            [
+              "The road back",
+              "the consequences give chase; the hero chooses to return"
+            ],
+            [
+              "Resurrection",
+              "a final test where the hero proves the change is real"
+            ],
+            [
+              "Return with the elixir",
+              "the hero brings something home that transforms the ordinary world"
+            ]
+          ]
+        }
+      ]
+    },
+    "mystery": {
+      "name": "Mystery / Crime",
+      "desc": "A detective structure: crime, investigation, false leads, revelation.",
+      "acts": [
+        {
+          "title": "The Crime",
+          "scenes": [
+            [
+              "The crime",
+              "show the crime or its discovery — plant the central question"
+            ],
+            [
+              "Taking the case",
+              "the investigator takes the case for a reason that is personal"
+            ],
+            [
+              "First clues",
+              "first evidence points somewhere promising and somewhere odd"
+            ]
+          ]
+        },
+        {
+          "title": "The Investigation",
+          "scenes": [
+            [
+              "The false lead",
+              "a convincing suspect or theory absorbs everyone's attention"
+            ],
+            [
+              "The stakes rise",
+              "a second crime or threat proves the investigator is running out of time"
+            ],
+            [
+              "The dark night",
+              "the false lead collapses; the investigator's own blind spot is exposed"
+            ]
+          ]
+        },
+        {
+          "title": "The Revelation",
+          "scenes": [
+            [
+              "The revelation",
+              "the overlooked detail recombines the evidence into the true picture"
+            ],
+            [
+              "The confrontation",
+              "the investigator faces the culprit; the truth costs something"
+            ],
+            [
+              "Resolution",
+              "justice, or its impossibility — answer the central question honestly"
+            ]
+          ]
+        }
+      ]
+    },
+    "romance": {
+      "name": "Romance",
+      "desc": "Two arcs toward each other: attraction, barrier, black moment, grand gesture.",
+      "acts": [
+        {
+          "title": "The Meeting",
+          "scenes": [
+            [
+              "The meeting",
+              "the leads collide in a way that reveals both characters at once"
+            ],
+            [
+              "Attraction and barrier",
+              "show the pull — and the concrete reason they cannot be together"
+            ],
+            [
+              "Getting closer",
+              "forced proximity or shared task makes the attraction undeniable"
+            ]
+          ]
+        },
+        {
+          "title": "The Falling",
+          "scenes": [
+            [
+              "The commitment",
+              "a kiss, a confession, or a choice that makes it real"
+            ],
+            [
+              "The wound resurfaces",
+              "an old fear or secret of one lead strains the bond"
+            ],
+            [
+              "The black moment",
+              "the barrier wins: a breakup or betrayal that feels final"
+            ]
+          ]
+        },
+        {
+          "title": "The Choice",
+          "scenes": [
+            [
+              "The grand gesture",
+              "one lead risks what they most protect to win the other back"
+            ],
+            [
+              "Together",
+              "the new balance: what each gave up and what they built"
+            ]
+          ]
+        }
+      ]
+    },
+    "short_story": {
+      "name": "Short story (seven points)",
+      "desc": "A condensed seven-beat structure for short fiction — one act, no fat.",
+      "acts": [
+        {
+          "title": null,
+          "scenes": [
+            [
+              "Hook",
+              "open inside a moment that poses the story's question"
+            ],
+            [
+              "First turn",
+              "an event commits the protagonist to the conflict"
+            ],
+            [
+              "First pinch",
+              "pressure: the antagonistic force shows its teeth"
+            ],
+            [
+              "Midpoint",
+              "the protagonist moves from reaction to action"
+            ],
+            [
+              "Second pinch",
+              "the worst blow — the protagonist loses their support"
+            ],
+            [
+              "Second turn",
+              "the protagonist obtains the last piece they need"
+            ],
+            [
+              "Resolution",
+              "answer the opening question — show the changed protagonist"
+            ]
+          ]
+        }
+      ]
+    }
+  },
+  "agent": {
+    "gen_variant": "\"{scene}\": writing variant {i}/{v} ({provider})",
+    "check_variant": "\"{scene}\": checking variant {i} against the contracts",
+    "verdict": "\"{scene}\" {file}: {verdict} (violations: {n})",
+    "summary": "\"{scene}\": writing a memory summary",
+    "fix": "repairing the source from diagnostics ({provider})",
+    "revise": "\"{scene}\": revising variant {i} (attempt {r})",
+    "targeted": "\"{scene}\" {file}: applying targeted notes ({n} comments)",
+    "draft": "reading the notes and drafting the book structure ({provider})",
+    "draft_done": "draft ready: \"{title}\", {n} scenes",
+    "draft_unparsed": "the model did not return a valid book structure — try again or provide richer notes",
+    "draft_broken": "the drafted book failed to compile ({codes}) — try again",
+    "translate_glossary": "building the {lang} glossary of names and terms ({provider})",
+    "translate_scene": "\"{scene}\": translating into {lang} ({provider})",
+    "translate_done": "{lang}: {n} translated, {s} already fresh, {m} scenes without text",
+    "glossary_unparsed": "the model did not return a valid glossary — try again"
+  },
+  "provider": {
+    "sdk_missing": "SDK is not installed — run: pip install anthropic",
+    "key_profile_hint": "{env} is not set — the SDK will try an ant auth profile",
+    "cli_missing": "`claude` command not found in PATH — install Claude Code",
+    "cli_timeout": "claude CLI did not respond in time",
+    "cli_empty": "claude CLI returned an empty response",
+    "cli_error": "claude CLI: {detail}",
+    "cli_login_hint": " — run `claude` in a terminal and log in (/login)",
+    "unknown_error": "unknown error",
+    "no_model": "the profile has no model set",
+    "no_token": "token is not set — export {env}=...",
+    "http_error": "HTTP {code} from {url}: {detail}",
+    "no_connection": "cannot reach {url}: {reason}",
+    "unreachable": "cannot reach {url} — start the server or fix base_url",
+    "bad_response": "unexpected response: {body}",
+    "empty_response": "empty response from the model",
+    "refused": "the model refused",
+    "refused_cat": "the model refused (category: {cat})",
+    "unknown_profile": "unknown model profile '{name}'; available: {list}"
+  },
+  "server": {
+    "not_fab": "{path} is not a .fab file",
+    "no_such_file": "file not found: {path}",
+    "project_exists": "{path} already exists — open it instead of creating",
+    "no_directory": "specify a directory for the new project",
+    "not_compiling": "the source does not compile — fix the errors first",
+    "nothing_to_fix": "nothing to fix — the source is clean",
+    "unavailable": "provider '{name}' is unavailable: {reason}",
+    "no_profiles": "no profiles in models.json",
+    "empty_manuscript": "the manuscript is empty — generate and approve at least one scene",
+    "no_notes": "paste some notes — the agent cannot draft a book from nothing",
+    "bad_lang": "invalid language code: '{lang}' — expected a code like en, de, pl",
+    "same_lang": "the book is already written in this language ({lang})",
+    "no_translation": "no '{lang}' translation yet — run the translation first"
+  },
+  "cli": {
+    "book": "BOOK: {title}",
+    "world": "World: {name} ({rules}, hard: {hard})",
+    "characters": "Characters: {list}",
+    "scene_line": "  Act {act} / Chapter {ch} \"{title}\" / scene \"{scene}\" — POV {pov}, {size}, variants: {v}, beats: {beats}",
+    "size_free": "free length",
+    "size_words": "{a}–{b} words",
+    "wrote": "wrote {path}",
+    "refusing_write": "refusing to write: fix compile errors first",
+    "fix_clean": "nothing to fix — the source is clean",
+    "fix_still_broken": "the agent's fix still has errors — leaving the file untouched:",
+    "fix_done": "fixed and verified: {path} ({n} remaining warnings)",
+    "missing_scenes": "missing scenes (not generated/approved): {list}",
+    "translate_report": "translation into {lang}: {n} translated, {s} already fresh, {m} scenes without text — {dir}",
+    "done": "done — see {dir}",
+    "models_config": "config: {src}",
+    "models_builtin": "(built-in default profiles — create models.json to change them)",
+    "status_ok": "ok",
+    "status_unavailable": "unavailable",
+    "provider_note": "[{name}] {reason}",
+    "serve": "Fabula UI: http://127.0.0.1:{port}  (project: {file})",
+    "init_exists": "{path} already exists — skipping",
+    "unknown_template": "unknown template '{name}'; available: {list}",
+    "template_size": "{n} scenes, {a} acts",
+    "init_next": "next:\n  fabula serve {book}    # web studio at http://127.0.0.1:8787\n  fabula plan {book}     # book outline in the console",
+    "no_notes_file": "notes file not found: {path}",
+    "empty_library": "no books in the library yet ({dir}) — create one: fabula init <name>"
+  },
+  "prompts": {
+    "bible": {
+      "role": "You are a writing agent. You are writing the book \"{title}\".",
+      "role2": "You receive formal scene specifications and return literary prose that fulfils them exactly.",
+      "settings_hdr": "## Book settings",
+      "world_hdr": "## World: {name}",
+      "world_rules": "World rules:",
+      "rule_hard": "MUST NEVER BE BROKEN",
+      "rule_soft": "should be followed",
+      "chars_hdr": "## Characters",
+      "age": "- age: {age}",
+      "traits": "- traits: {list}",
+      "arc": "- arc: {arc}",
+      "appearance": "- appearance: {x}",
+      "voice": "- speech and voice (habits, pet phrases, rhythm): {x}",
+      "wants": "- wants: {x}",
+      "fears": "- fears: {x}",
+      "secret": "- secret (must not be revealed by accident): {x}",
+      "never": "- NEVER: {x}",
+      "must": "- must be resolved within the book: {x}",
+      "locations_hdr": "## Locations — use these sensory details whenever the scene is set here",
+      "sense_smell": "- smell: {x}",
+      "sense_sound": "- sound: {x}",
+      "sense_touch": "- touch: {x}",
+      "sense_taste": "- taste: {x}",
+      "sense_sight": "- sight: {x}",
+      "threads_hdr": "## Plot threads",
+      "threads_note": "Each scene's specification says which threads it advances. Do not resolve or contradict the others.",
+      "reqs_hdr": "## General requirements",
+      "reqs1": "- Never break any rule marked {hard}.",
+      "reqs2": "- Keep the POV strict: no head-hopping within a scene.",
+      "reqs3": "- Show, don't tell: every 'show' beat must happen on the page, in action or dialogue.",
+      "reqs4": "- Answer ONLY with the scene text — no headers, explanations, or commentary."
+    },
+    "scene": {
+      "write": "Write the scene \"{scene}\" (act {act}, chapter {ch} \"{title}\").",
+      "spec_hdr": "## Scene specification",
+      "pov": "- POV: {pov}",
+      "location": "- Location: {location}",
+      "time": "- Time: {time}",
+      "tension": "- Tension curve (normalized, from the start to the end of the scene): {tension}",
+      "length": "- Length: {a}–{b} words",
+      "hints": "- Style hints: {list}",
+      "cast": "- On the page besides the POV: {list}",
+      "kill": "- {name} dies in this scene — the death must happen on the page",
+      "thread": "- This scene advances the thread \"{name}\" ({desc}) — it must move visibly forward",
+      "show_hdr": "## Must happen on the page (mandatory, every item)",
+      "forbid_hdr": "## Forbidden in this scene",
+      "before_hdr": "## What happened before",
+      "ledger_hdr": "## Character state before the scene",
+      "instruction_hdr": "## Editor's notes (must be applied)"
+    },
+    "ctx": {
+      "full": "- \"{scene}\": {s}",
+      "planned": "- \"{scene}\" (planned): {beats}",
+      "brief": "- \"{scene}\" (act {act}, chapter {ch}, brief): {s}",
+      "died": "  ({name} died in this scene)"
+    },
+    "ledger": {
+      "dead": "died in scene \"{scene}\"",
+      "alive": "alive",
+      "last_seen": "last seen: {loc} (\"{scene}\")",
+      "view": "their own picture of events (write only from what they actually know): {x}"
+    },
+    "variant_note": "This is variant {i} of {v} — make it tonally distinct from other possible takes on the same specification.",
+    "revise": "Your previous text for this scene violated the contract. Violations (JSON):\n{violations}\n\nRewrite the scene COMPLETELY: fix every violation and keep the strong parts of the previous text. Answer only with the scene text.\n\nPREVIOUS TEXT:\n<<<\n{text}\n>>>",
+    "critique": "You are a validator agent. Check the scene text against the contract.\n\nCONTRACT (JSON):\n{contract}\n\nSCENE TEXT:\n<<<\n{text}\n>>>\n\nReturn STRICTLY valid JSON without a markdown fence, following this schema:\n{{\"verdict\": \"ok\" | \"issues\", \"word_count_estimate\": int, \"violations\": [{{\"kind\": \"hard_rule\" | \"missing_beat\" | \"forbidden\" | \"pov\" | \"length\", \"target\": \"rule/beat name\", \"quote\": \"a quote from the text or null\", \"explanation\": \"brief\"}}]}}",
+    "critique_death": "the death of {name} on the page",
+    "summarize": "Analyse the scene \"{scene}\" for the writing agent's memory.\nReturn STRICTLY valid JSON without a markdown fence, following this schema:\n{{\"summary\": \"3–5 sentences: only facts that affect the further plot (events, decisions, consequences), no judgements or style\", \"state_changes\": [{{\"character\": \"character name\", \"change\": \"what changed for them: location, knowledge, loss (including memories), relationships\"}}], \"viewpoints\": [{{\"character\": \"character name\", \"view\": \"1–2 sentences of this character's OWN picture after the scene: what they now know, what they still do not know, what they believe (even mistakenly), what they feel\"}}]}}\nInclude a viewpoints entry for every character present in the scene. If there are no state changes, return an empty state_changes list.\n\nTEXT:\n<<<\n{text}\n>>>",
+    "fix": "You are a repair agent for the Fabula language. Below are a .fab source and the compiler diagnostics (JSON with stable codes and a hint field). Fix ALL the problems with minimal changes, preserving the author's intent. Return ONLY the full corrected file content, without a markdown fence or explanations.\n\nDIAGNOSTICS:\n{diagnostics}\n\nSOURCE:\n{source}",
+    "comment_item": "- Passage: \"{quote}\" — editor's note: {note}",
+    "chapter_heading": "Chapter {n}. {title}",
+    "translate": {
+      "system": "You are a literary translator. You are translating the book \"{title}\" from {src} into {dst}.\nThe goal: a {dst} reader must experience the text exactly as a reader of the original does — the same voice, the same temperature. Rules:\n- Preserve the author's style: sentence rhythm and length contrasts, paragraph breaks, deliberate repetitions, and the density of imagery. Do not smooth, embellish, shorten, or explain anything.\n- Keep the narrative voice ({voice}) and the grammatical tense ({tense}) of the original.\n- Keep the register of every line: colloquial stays colloquial, formal stays formal, coarse stays coarse.\n- Render wordplay, idioms, and metaphors with {dst} equivalents of the same effect; where a literal image would die, keep the meaning and the tone rather than the letters.\n- Use natural {dst} punctuation and typography for dialogue, quotations, and numbers.\n- Proper names, terms, and titles: use ONLY the glossary below, identically every time.",
+      "style_profile": "The author's style profile — keep it recognizable in translation: {x}",
+      "glossary_hdr": "GLOSSARY (original → translation):",
+      "system_glossary": "You are a literary translator preparing to translate a book. You decide, once for the whole book, how its title, proper names, key terms, and chapter titles will be rendered in the target language.",
+      "glossary": "Prepare the glossary for translating the book \"{title}\" into {dst}.\nReturn STRICTLY valid JSON without a markdown fence:\n{{\n  \"title\": \"the book title in {dst}\",\n  \"names\": {{\"<name in the original>\": \"<name in {dst}>\"}},\n  \"chapter_titles\": {{\"<chapter title in the original>\": \"<chapter title in {dst}>\"}},\n  \"chapter_heading\": \"the natural chapter-heading format in {dst}, keeping the {{n}} (number) and {{title}} placeholders\",\n  \"act_heading\": \"the natural act-heading format in {dst} with the {{n}} placeholder\"\n}}\n\nRules for names: transliterate personal names by the accepted {dst} conventions; translate meaningful (speaking) names so the meaning survives; real-world names and places take their established {dst} forms. EVERY name listed below must appear as a key in \"names\".\n\nNames (characters, locations, key terms):\n{names}\n\nChapter titles:\n{chapters}",
+      "scene": "Translate the scene \"{scene}\" into {dst}.\nReturn ONLY the translated text of the scene — no headings, comments, or code fences. Keep the paragraph breaks of the original.\n\nORIGINAL TEXT:\n<<<\n{text}\n>>>"
+    },
+    "act_heading": "Act {n}",
+    "targeted_revise": "Below are the scene's current text and the editor's targeted notes anchored to quotes.\nMake MINIMAL changes: rewrite only the quoted passages and whatever is strictly needed for coherence right around them. Keep the plot, the sequence of events, facts, names, paragraph structure, and all remaining text verbatim. Do not add new events or change the ending. Follow the scene specification above.\nReturn the FULL updated scene text, without comments or explanations.\n\nCURRENT TEXT:\n<<<\n{text}\n>>>\n\nEDITOR'S NOTES:\n{comments}",
+    "draft_system": "You are a book editor and story architect. From an author's raw notes you assemble the complete working structure of a book for a writer agent: title, premise, style, world, characters, locations, plot threads, and the division into acts, chapters, and scenes. Everything present in the notes is preserved and lands in the matching fields; fill gaps carefully, in the spirit of the notes, and never contradict what the author wrote.",
+    "draft": "Assemble the book structure from the author's notes below.\nReturn STRICTLY valid JSON with no markdown fence and no commentary, using this schema (omit a field or set it to null when neither the notes nor a well-grounded guess provide material):\n{{\n  \"title\": \"book title\",\n  \"premise\": \"premise, 1–3 sentences\",\n  \"style_profile\": \"narrative style: tone, rhythm, manner\",\n  \"voice\": \"first_person | third_person_limited | third_person_omniscient\",\n  \"tense\": \"past | present\",\n  \"world\": {{\"name\": \"world name\", \"rules\": [{{\"name\": \"world rule\", \"description\": \"…\", \"severity\": \"hard|soft\"}}]}},\n  \"characters\": [{{\"name\": \"…\", \"age\": number or null, \"traits\": [\"…\"], \"arc\": \"character arc\", \"appearance\": \"…\", \"voice\": \"speech and voice\", \"wants\": \"what they want\", \"fears\": \"what they fear\", \"secret\": \"their secret\", \"never\": [\"what they would never do\"], \"must_resolve\": [\"what must be resolved by the finale\"]}}],\n  \"locations\": [{{\"name\": \"…\", \"description\": \"…\", \"smell\": \"…\", \"sound\": \"…\", \"touch\": \"…\", \"taste\": \"…\", \"sight\": \"…\"}}],\n  \"threads\": [{{\"name\": \"plot thread\", \"description\": \"…\"}}],\n  \"acts\": [{{\"title\": \"act title\", \"chapters\": [{{\"title\": \"chapter title\", \"scenes\": [{{\"name\": \"unique scene name\", \"pov\": \"a character from the characters list\", \"cast\": [\"who else is in the scene\"], \"kill\": [\"who dies in this scene\"], \"location\": \"a location from the locations list\", \"time\": \"time of the action\", \"threads\": [\"threads from the threads list\"], \"show\": [\"2–4 concrete beats: what MUST happen\"], \"forbid\": [\"what must not appear in the scene\"]}}]}}]}}]\n}}\n\nRequirements:\n- All text in the book's language (the language of this task), even when the notes are written in another language.\n- Names in pov/cast/kill only from the characters list; locations and threads from their respective lists.\n- Scene names unique across the book.\n- The structure must cover the notes FROM BEGINNING TO END: the book's first scene comes from the first plot event in the notes, the last scene from the last one. Stopping halfway through the notes and closing the book early is a serious error.\n- The notes set the size, not a quota: one scene per distinct event the author wrote down. Loose sketches need 8–12 scenes across 2–3 acts; a detailed retelling of events needs 20–40 scenes and 4–5 acts. Prefer more short scenes over a dropped event.\n- Every character named in the notes lands in characters and in at least one scene; every event in the notes lands in at least one show beat. Discard nothing as \"minor\" and do not merge several events into one summary scene.\n- Before answering, walk the notes top to bottom and confirm that the last event in the notes sits in the last act.\n- show beats are concrete and verifiable — no generic phrases like \"the conflict develops\".\n- Invent nothing that contradicts the notes; whatever the author stated goes into the book.\n\nAUTHOR'S NOTES:\n<<<\n{notes}\n>>>"
+  },
+  "diag": {
+    "FAB001": {
+      "m": "a single '.' is not a valid token",
+      "h": "did you mean a range 'a..b'?"
+    },
+    "FAB002": {
+      "m": "unterminated string",
+      "h": "close the string with '\"'"
+    },
+    "FAB002_nl": {
+      "m": "unterminated string (newline inside quotes)",
+      "h": "close the string with '\"' on the same line"
+    },
+    "FAB003": {
+      "m": "unexpected character {ch}",
+      "h": "allowed: identifiers, \"strings\", numbers, {{ }} [ ] : ; , .. and // comments"
+    },
+    "FAB010": {
+      "m": "expected {kind}, got {got} ({value})"
+    },
+    "FAB011": {
+      "m": "block '{kind}' is never closed",
+      "h": "add a matching '}'"
+    },
+    "FAB012": {
+      "m": "expected an attribute or a nested block, got {kind}"
+    },
+    "FAB013": {
+      "m": "unexpected {kind} in value position"
+    },
+    "FAB100": {
+      "m": "no 'book' block found",
+      "h": "wrap everything in: book \"Title\" {{ ... }}"
+    },
+    "FAB101": {
+      "m": "scene \"{scene}\": pov \"{pov}\" is not a declared character",
+      "h": "declared characters: {names}"
+    },
+    "FAB102": {
+      "m": "scene \"{scene}\" has no 'show' beat — the agent has nothing concrete to dramatize",
+      "h": "add: show \"what must visibly happen\";"
+    },
+    "FAB103": {
+      "m": "scene \"{scene}\": invalid length {length}",
+      "h": "use: length: 900..1200;"
+    },
+    "FAB104": {
+      "m": "duplicate character \"{name}\"",
+      "h": "merge or rename"
+    },
+    "FAB105": {
+      "m": "scene \"{scene}\": tension value {value} outside [0, 1]",
+      "h": "tension is a normalized curve, e.g. [0.2, 0.5, 0.8, 0.4]"
+    },
+    "FAB106": {
+      "m": "unknown block '{kind}' inside {where}"
+    },
+    "FAB106_top": {
+      "m": "top-level block '{kind}' is ignored (expected 'book')"
+    },
+    "FAB107": {
+      "m": "scene \"{scene}\": \"{name}\" is not a declared character",
+      "h": "declared characters: {names}"
+    },
+    "FAB108": {
+      "m": "scene \"{scene}\": \"{name}\" is dead since scene \"{dead_in}\"",
+      "h": "remove them from pov/cast, or move their death later"
+    },
+    "FAB109": {
+      "m": "scene \"{scene}\": thread \"{name}\" is not declared",
+      "h": "declared threads: {names} — or add: thread \"{name}\" {{ description: \"...\"; }}"
+    },
+    "FAB110": {
+      "m": "duplicate {kind} \"{name}\"",
+      "h": "merge or rename"
+    },
+    "FAB201": {
+      "m": "the book has no world block — hard rules are impossible",
+      "h": "add: world \"Name\" {{ rule \"...\" {{ severity: hard; }} }}"
+    },
+    "FAB202": {
+      "m": "hard rule \"{rule}\" has no description — the agent cannot enforce it precisely"
+    },
+    "FAB203": {
+      "m": "thread \"{name}\" is declared but no scene advances it",
+      "h": "add threads: [\"{name}\"]; to the scenes where it moves forward"
+    },
+    "FAB204": {
+      "m": "thread \"{name}\" is silent for {n} scenes in a row (between \"{a}\" and \"{b}\")",
+      "h": "readers lose a thread after ~{limit} silent scenes — add a beat in between, or raise thread_gap in the book settings"
+    },
+    "hint": {
+      "block_start": "a block starts with its kind, e.g. book / scene / character",
+      "block_open": "block '{kind}' must open with '{{'",
+      "attr_semi": "attribute '{key}' must end with ';'",
+      "range_ends": "a range needs both ends: min..max",
+      "list_close": "close the list with ']'"
+    }
+  },
+  "advisor": {
+    "hdr": "Suggested settings",
+    "hint": "Computed from your notes and the book graph — apply what you agree with.",
+    "apply": "Apply",
+    "apply_all": "Apply all",
+    "applied": "Settings applied — remember to save to source.",
+    "none": "Not enough notes to advise on — add at least a few paragraphs.",
+    "current": "now",
+    "suggest": "suggested",
+    "unset": "unset",
+    "scenes_est": "the notes hold ~{n} events — about that many scenes",
+    "key": {
+      "thread_gap": "Plot-thread silence (thread_gap)",
+      "target_words": "Target length (target_words)",
+      "variants": "Variants per scene (variants)",
+      "revisions": "Self-revision rounds (revisions)",
+      "language": "Book language (language)"
+    },
+    "thread_gap": {
+      "notes": "The notes imply ~{scenes} scenes. A limit of {gap} is about a sixth of the book: a thread can go quiet without the reader losing it.",
+      "book": "This book has {scenes} scenes; the default limit is tuned for a dozen. At {gap}, FAB204 warnings cleared: {cleared}."
+    },
+    "target_words": {
+      "notes": "~{scenes} scenes at ~1000 words each is about {words} words. The number goes into the book bible so the agent keeps the scale.",
+      "book": "The mid-points of every scene's length range across {scenes} scenes add up to {words} words. Without this field the length progress bar cannot work."
+    },
+    "variants": {
+      "big": "{scenes} scenes means {calls} generations per pass. Keep 1 variant and add a second only where a scene did not land.",
+      "small": "The book is small ({scenes} scenes), so 2 variants per scene is affordable — pick the better one."
+    },
+    "revisions": {
+      "dense": "The notes carry a lot of hard constraints ({density} per 1000 words) — give the agent a second self-revision round or the rules will break.",
+      "plain": "Few constraints in the notes — a single self-revision round is enough."
+    },
+    "language": {
+      "detected": "The notes are written in \"{code}\" — the book should be written in it too."
+    },
+    "thread": {
+      "structural": "Thread \"{name}\" goes quiet for {n} scenes in a row — that is the shape of the notes, not a setting. Either give it a beat in the middle acts, or accept the silence deliberately."
+    }
+  }
+}

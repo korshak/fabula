@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "fabula-ui",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["run_ui.py", "8787"],
+      "port": 8787,
+      "url": "http://127.0.0.1:8787"
+    }
+  ]
+}

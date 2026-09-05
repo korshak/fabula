@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fabula-lang"
+version = "0.1.0"
+description = "AI-first DSL and toolchain for books written by LLM agents: compiler with machine-readable diagnostics, scene memory, multi-provider generation, and a local web studio"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+keywords = ["dsl", "llm", "agents", "writing", "fiction", "claude", "narrative"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Environment :: Web Environment",
+  "Intended Audience :: Developers",
+  "Intended Audience :: End Users/Desktop",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Text Processing :: Linguistic",
+  "Topic :: Software Development :: Compilers",
+]
+# The core has zero runtime dependencies (stdlib only).
+dependencies = []
+
+[project.optional-dependencies]
+# `pip install "fabula-lang[anthropic]"` — for the Anthropic API provider;
+# the claude-cli and openai-compatible providers need nothing extra.
+anthropic = ["anthropic>=1.0"]
+
+[project.scripts]
+fabula = "fabula.cli:main"
+
+[tool.setuptools]
+packages = ["fabula"]
+
+[tool.setuptools.package-data]
+fabula = ["locales/*.json", "web/index.html"]

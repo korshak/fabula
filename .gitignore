@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.DS_Store
+build/
+dist/
+*.egg-info/
+.venv/
+venv/
+# макети Claude Design — робочі файли дизайнера, лишаються локальними
+design/
+# бібліотека книжок: рукописи автора лишаються локальними, приклад — у репозиторії
+books/*
+!books/Тіні пам'яті/
+!books/models.json
