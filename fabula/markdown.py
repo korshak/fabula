@@ -309,6 +309,22 @@ _BARE_URL_RE = re.compile(r"(^|[\s(])(https?://[^\s<>()]+[^\s<>().,;:!?])")
 _WORD = r"[^\W_]"
 
 
+# A link href out of markdown we did not write: the prose comes back from a
+# model, and this XHTML is read by an EPUB reader. Only the schemes a book
+# could legitimately link to survive; anything else renders inert. Kept in
+# step with mdHref() in fabula/web/index.html.
+_SCHEME_RE = re.compile(r"^[a-z][a-z0-9+.-]*:", re.I)
+_SAFE_SCHEMES = ("http:", "https:", "mailto:")
+
+
+def _href(href: str) -> str:
+    bare = re.sub(r"[\x00-\x20\x7f]", "", str(href or ""))
+    scheme = _SCHEME_RE.match(bare)
+    if not scheme:
+        return href                        # relative, anchor, protocol-relative
+    return href if scheme.group(0).lower() in _SAFE_SCHEMES else ""
+
+
 def _inline(src: str, refs: dict) -> str:
     slots: list[str] = []
 
@@ -326,7 +342,7 @@ def _inline(src: str, refs: dict) -> str:
     s = _esc_text(s)
 
     def link(text: str, href: str, title: str, image: bool) -> str:
-        url = _esc(href.strip("<>"))
+        url = _esc(_href(href.strip("<>")))
         t = f' title="{_esc(title)}"' if title else ""
         if image:
             return hold(f'<img src="{url}" alt="{_esc(text)}"{t}/>')

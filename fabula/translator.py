@@ -24,7 +24,7 @@ import re
 from pathlib import Path
 
 from .compiler import iter_scenes
-from .i18n import t
+from .i18n import _fill, t
 from .state import slug
 
 # Human-readable names make the target unambiguous for the model — a bare
@@ -142,25 +142,20 @@ def _chapter_titles(book: dict) -> list[str]:
     return list(dict.fromkeys(titles))
 
 
-class _SafeDict(dict):
-    def __missing__(self, key):
-        return "{" + key + "}"
-
-
 def chapter_heading(book: dict, tstate: TranslationState, chapter: dict) -> str:
     """Chapter heading in the target language: glossary format + glossary title."""
     g = tstate.glossary or {}
     title = (g.get("chapter_titles") or {}).get(chapter["title"]) or chapter["title"]
     fmt = g.get("chapter_heading")
     if isinstance(fmt, str) and "{n}" in fmt:
-        return fmt.format_map(_SafeDict(n=chapter["number"], title=title))
+        return _fill(fmt, {"n": chapter["number"], "title": title})
     return t("prompts.chapter_heading", tstate.lang, n=chapter["number"], title=title)
 
 
 def act_heading(book: dict, tstate: TranslationState, n: int) -> str:
     fmt = (tstate.glossary or {}).get("act_heading")
     if isinstance(fmt, str) and "{n}" in fmt:
-        return fmt.format_map(_SafeDict(n=n))
+        return _fill(fmt, {"n": n})
     return t("prompts.act_heading", tstate.lang, n=n)
 
 

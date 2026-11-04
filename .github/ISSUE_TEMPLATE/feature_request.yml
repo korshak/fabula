@@ -1,0 +1,42 @@
+name: Idea or feature request
+description: A change to the language, the studio or the toolchain
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Fabula is deliberately small and dependency-free. The most useful
+        proposals say what a writer or an agent cannot express today.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What you cannot do today
+      description: The situation, not the solution.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you propose
+      description: >
+        If it touches the language, sketch the syntax and what the compiler
+        would have to check.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you tried instead
+      description: How you work around it now, and why that is not enough.
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints
+      options:
+        - label: This needs no new runtime dependency (the core is stdlib-only)
+        - label: This changes the `.fab` language, so `docs/LANGUAGE.md` would change too
+        - label: I would be willing to open a pull request for this

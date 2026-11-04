@@ -1,0 +1,38 @@
+name: New interface language
+description: Offer to translate Fabula into a language it does not speak yet
+labels: ["i18n"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The easiest contribution there is: copy `fabula/locales/en.json`,
+        translate the values, open a pull request. No code changes are needed —
+        see `fabula/locales/README.md`. Partial translations are fine; missing
+        keys fall back to English.
+
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      placeholder: "Polish (pl)"
+    validations:
+      required: true
+
+  - type: input
+    id: plural
+    attributes:
+      label: Plural rule
+      description: >
+        How many plural forms does the language need, and which of the rules in
+        `_PLURAL_RULES` (fabula/i18n.py) fits? If none does, say so — a new rule
+        is a small change.
+      placeholder: "3 forms, same shape as the Ukrainian rule"
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: Interface strings (`fabula/locales/<code>.json`)
+        - label: The `prompts` section too — these are sent to the writing model in the book's language
+        - label: A translated README

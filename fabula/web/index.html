@@ -1535,6 +1535,22 @@ function mdParagraph(lines, i, refs, out) {
 }
 
 /* ---------- inline ---------- */
+// A link href out of a markdown source we did not write. The prose comes back
+// from a model, and the studio renders it same-origin, so a `javascript:` URL
+// in a link would run with full access to this page's API. Only the schemes a
+// book could legitimately link to survive; anything else renders inert.
+const MD_SCHEME_RE = /^[a-z][a-z0-9+.-]*:/i;
+const MD_SAFE_SCHEMES = new Set(["http:", "https:", "mailto:"]);
+
+function mdHref(href) {
+  // browsers ignore control characters and whitespace inside a URL, so strip
+  // them before deciding — `java\tscript:` is `javascript:` once loaded
+  const bare = String(href ?? "").replace(/[\u0000-\u0020\u007f]/g, "");
+  const scheme = bare.match(MD_SCHEME_RE);
+  if (!scheme) return href;                       // relative, anchor, protocol-relative
+  return MD_SAFE_SCHEMES.has(scheme[0].toLowerCase()) ? href : "";
+}
+
 function mdInline(src, refs = {}) {
   const slots = [];
   const hold = html => MD_HOLE + (slots.push(html) - 1) + MD_HOLE;
@@ -1549,7 +1565,7 @@ function mdInline(src, refs = {}) {
   s = s.replace(/[&<>]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;"}[c]));
 
   const link = (text, href, title, img) => {
-    const a = esc(href.replace(/^<|>$/g, ""));
+    const a = esc(mdHref(href.replace(/^<|>$/g, "")));
     const t = title ? ` title="${esc(title)}"` : "";
     return img ? hold(`<img src="${a}" alt="${esc(text)}"${t}>`)
                : hold(`<a href="${a}"${t}>`) + text + hold("</a>");
