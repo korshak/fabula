@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from .compiler import compile_source
 from .i18n import t
+from .forms import form_contract, review_plan, validate_form_settings
 
 SENSES = ("smell", "sound", "touch", "taste", "sight")
 VOICES = {"first_person", "third_person_limited", "third_person_omniscient"}
@@ -107,6 +108,9 @@ def normalize_draft(data: dict, lang: str) -> dict:
         settings["premise"] = _s(data.get("premise"))
     if _int(data.get("target_words")):
         settings["target_words"] = _int(data.get("target_words"))
+    if _s(data.get("form")):
+        settings["form"] = _s(data["form"])
+    validate_form_settings(settings)
 
     characters = _dedupe([{
         "name": _s(c.get("name")), "age": _int(c.get("age")),
@@ -222,22 +226,36 @@ def _drop_dead_references(book: dict):
         dead.update(scene["kill"])
 
 
-def draft_prompt_pair(notes: str, lang: str):
+def draft_prompt_pair(notes: str, lang: str, settings: dict | None = None):
     """(system, user) for the drafting call, in the book's language."""
-    return t("prompts.draft_system", lang), t("prompts.draft", lang, notes=notes)
+    settings = {**(settings or {}), "language": lang}
+    validate_form_settings(settings)
+    system = t("prompts.draft_system", lang)
+    if settings.get("form"):
+        system += "\n\n" + form_contract(settings)
+    elif settings.get("target_words"):
+        system += "\n\n" + t("forms.budget", lang, words=settings["target_words"])
+    return system, t("prompts.draft", lang, notes=notes)
 
 
-def draft_book(notes: str, lang: str, provider, on_progress=None) -> dict:
+def draft_book(notes: str, lang: str, provider, on_progress=None,
+               settings: dict | None = None) -> dict:
     """Notes -> normalized book graph, verified against the compiler."""
     progress = on_progress or (lambda msg: print(msg))
     progress(t("agent.draft", provider=provider.name))
-    system, prompt = draft_prompt_pair(notes, lang)
+    system, prompt = draft_prompt_pair(notes, lang, settings)
     from .agent import _extract_json
     data = _extract_json(provider.generate(system, prompt, effort="high"))
     if (not isinstance(data, dict) or data.get("verdict") == "unparsed"
             or not (data.get("acts") or data.get("characters") or data.get("title"))):
         raise ValueError(t("agent.draft_unparsed"))
+    # Explicit author choices win even when the model returns another form.
+    for key in ("form", "target_words"):
+        if (settings or {}).get(key) is not None:
+            data[key] = settings[key]
     book = normalize_draft(data, lang)
+    book["settings"].update(settings or {})
+    book["settings"]["language"] = lang
 
     # safety net: the normalizer must have produced a compiling book
     from .serializer import serialize_book
@@ -246,6 +264,11 @@ def draft_book(notes: str, lang: str, provider, on_progress=None) -> dict:
     if not result["ok"] or errors:
         raise ValueError(t("agent.draft_broken",
                            codes=", ".join(sorted({d["code"] for d in errors})) or "?"))
+
+    if book["settings"].get("form"):
+        progress(t("forms.checking"))
+        book["_plan_review"] = review_plan(book, provider)
+        progress(book["_plan_review"]["summary"])
 
     scenes = sum(1 for _ in _iter_scenes(book))
     progress(t("agent.draft_done", title=book["title"], n=scenes))

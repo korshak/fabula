@@ -19,6 +19,7 @@ Provider types:
                 ANTHROPIC_API_KEY or an `ant auth login` profile
   claude-cli  — the locally installed `claude` console tool in print mode
                 (no API key needed, uses the user's Claude Code auth)
+  codex-cli   — local `codex exec`, using the user's existing Codex login
   openai      — any OpenAI-compatible chat/completions endpoint over raw HTTP
                 (OpenAI, OpenRouter, Gemini's compat endpoint, Ollama, ...);
                 the token comes from the env var named in api_key_env
@@ -31,6 +32,7 @@ import os
 import re
 import shutil
 import subprocess
+import tempfile
 import threading
 import time
 import urllib.error
@@ -169,6 +171,53 @@ class ClaudeCLIProvider(Provider):
         return text
 
 
+class CodexCLIProvider(Provider):
+    """Text generation through an authenticated local Codex CLI (no SDK)."""
+
+    type = "codex-cli"
+
+    def status(self) -> dict:
+        if not shutil.which("codex"):
+            return {"available": False, "reason": t("provider.codex_missing")}
+        # Presence is cheap to check on every UI refresh; auth is checked by exec.
+        return {"available": True, "reason": t("provider.codex_auth_note")}
+
+    def generate(self, system: str, prompt: str, effort: str = "high") -> str:
+        # Use a fresh directory and disable repository instructions so the
+        # writer receives the supplied text rather than the current checkout.
+        with tempfile.TemporaryDirectory(prefix="fabula-codex-") as directory:
+            output = Path(directory) / "answer.txt"
+            cmd = ["codex", "exec", "--ephemeral", "--ignore-user-config",
+                   "--skip-git-repo-check", "--sandbox", "read-only", "--color", "never",
+                   "-c", "approval_policy=\"never\"",
+                   "-c", "features.shell_tool=false", "-c", "project_doc_max_bytes=0",
+                   "-c", "model_reasoning_effort=" + json.dumps(effort),
+                   "-c", "developer_instructions=" + json.dumps(system + "\n\n" +
+                       "Return only the requested text. Do not use tools or inspect files.", ensure_ascii=False),
+                   "--output-last-message", str(output)]
+            if self.model:
+                cmd += ["--model", self.model]
+            cmd.append("-")
+            try:
+                proc = subprocess.run(cmd, input=prompt, capture_output=True, text=True,
+                                      encoding="utf-8", cwd=directory,
+                                      timeout=self.cfg.get("timeout", GENERATION_TIMEOUT))
+            except FileNotFoundError:
+                raise ProviderError(t("provider.codex_missing")) from None
+            except subprocess.TimeoutExpired:
+                raise ProviderError(t("provider.codex_timeout")) from None
+            except OSError as e:
+                raise ProviderError(t("provider.codex_error", detail=str(e))) from e
+            if proc.returncode:
+                detail = (proc.stderr or proc.stdout or t("provider.unknown_error")).strip()[-1200:]
+                raise ProviderError(t("provider.codex_error", detail=detail))
+            # Never return event logs/stdout as fiction or a JSON report.
+            answer = output.read_text(encoding="utf-8").strip() if output.exists() else ""
+            if not answer:
+                raise ProviderError(t("provider.codex_empty"))
+            return answer
+
+
 class OpenAICompatProvider(Provider):
     """Any OpenAI-compatible /chat/completions endpoint, over raw HTTP (no deps)."""
 
@@ -250,12 +299,14 @@ class OpenAICompatProvider(Provider):
 _TYPES = {
     "anthropic": AnthropicProvider,
     "claude-cli": ClaudeCLIProvider,
+    "codex-cli": CodexCLIProvider,
     "openai": OpenAICompatProvider,
 }
 
 DEFAULT_CONFIG = {
     "default": "claude-cli",
     "providers": {
+        "codex-cli": {"type": "codex-cli", "timeout": 900},
         "claude-cli": {"type": "claude-cli", "model": "opus"},
         "claude-api": {"type": "anthropic", "model": "claude-opus-5"},
         "gpt": {"type": "openai", "base_url": "https://api.openai.com/v1",

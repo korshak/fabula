@@ -1,0 +1,9 @@
+{
+  "default": "codex-cli",
+  "providers": {
+    "codex-cli": {
+      "type": "codex-cli",
+      "timeout": 900
+    }
+  }
+}

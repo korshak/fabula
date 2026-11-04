@@ -59,6 +59,9 @@ def write_project(directory: Path, book: dict) -> list[Path]:
         models_path.write_text(json.dumps(DEFAULT_CONFIG, ensure_ascii=False, indent=2) + "\n",
                                encoding="utf-8")
         wrote.append(models_path)
+    if book.get("_plan_review"):
+        from .forms import save_review
+        save_review(directory / "build", book["_plan_review"])
     gitignore = directory / ".gitignore"
     if not gitignore.exists():
         gitignore.write_text("build/\n", encoding="utf-8")

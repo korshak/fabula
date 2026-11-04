@@ -25,6 +25,10 @@
       "type": "openai",
       "base_url": "http://localhost:11434/v1",
       "model": "llama3.3"
+    },
+    "codex-cli": {
+      "type": "codex-cli",
+      "timeout": 900
     }
   }
 }

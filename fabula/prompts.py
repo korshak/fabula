@@ -15,6 +15,7 @@ from __future__ import annotations
 import json
 
 from .compiler import iter_scenes
+from .forms import form_contract
 from .i18n import t as _t
 
 
@@ -38,6 +39,9 @@ def book_bible(book: dict) -> str:
     ]
     for key, value in settings.items():
         lines.append(f"- {key}: {value}")
+    contract = form_contract(settings)
+    if contract:
+        lines += ["", contract]
 
     hard = _p(book, "bible.rule_hard")
     if book["world"]:
@@ -304,6 +308,7 @@ def critique_prompt(book: dict, scene_name: str, text: str) -> str:
     hard_rules = [r for r in (book["world"]["rules"] if book["world"] else []) if r["severity"] == "hard"]
 
     contract = {
+        "literary_form": form_contract(book["settings"]),
         "hard_world_rules": [{"name": r["name"], "description": r["description"]} for r in hard_rules],
         "required_beats": scene["show"] + [_p(book, "critique_death", name=v) for v in scene["kill"]],
         "forbidden": scene["forbid"],

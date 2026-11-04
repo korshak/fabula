@@ -2481,7 +2481,7 @@ async function generateScene(name, instruction = "", commentsFrom = null) {
 
 /* ---------- builder tab ---------- */
 const B = { model: null, dirty: false, timer: null, src: "", diags: [], closed: new Set(),
-            advice: undefined, adviceLoading: false,
+            advice: undefined, adviceLoading: false, adviceKey: null,
             diagsOpen: undefined };  // undefined = auto: open only a short list
 
 const NEW = {
@@ -2603,20 +2603,30 @@ function advisorHtml() {
   return head + `<div class="adv-hint">${esc(hint)}</div>` + a.items.map(advItemHtml).join("");
 }
 
+function adviceKey() { return JSON.stringify([S.project?.file, S.lang, B.model]); }
+
 async function loadAdvice(force) {
   if (B.adviceLoading) return;
-  if (B.advice !== undefined && !force) return;
+  const key = adviceKey();
+  if (B.advice !== undefined && B.adviceKey === key && !force) return;
   B.adviceLoading = true;
   if (force) { B.advice = undefined; renderBuilder(); }
+  let result;
   try {
-    B.advice = await api("/api/advise", {method: "POST", headers: {"Content-Type": "application/json"},
+    result = await api("/api/advise", {method: "POST", headers: {"Content-Type": "application/json"},
       body: JSON.stringify({book: B.model})});
-  } catch (e) { B.advice = null; }
+  } catch (e) { result = null; }
   B.adviceLoading = false;
-  renderBuilder();
+  if (key !== adviceKey()) {
+    if (S.tab === "builder") loadAdvice();
+    return;
+  }
+  B.advice = result; B.adviceKey = key;
+  if (S.tab === "builder") renderBuilder();
 }
 
 function applyAdvice(keys) {
+  if (B.adviceKey !== adviceKey()) { loadAdvice(true); return; }
   const a = B.advice;
   if (!a) return;
   B.model.settings = B.model.settings || {};
@@ -2630,6 +2640,44 @@ function applyAdvice(keys) {
   showToast(t("advisor.applied"), "ok");
   renderBuilder();
   schedulePreview();
+}
+
+function formSelect(path, value) {
+  return fld(t("forms.label"), `<select data-bind="${path}">
+    ${["", "short_story", "novella", "novel"].map(v => `<option value="${v}" ${v === (value || "") ? "selected" : ""}>${esc(t(v ? `forms.${v}.name` : "forms.unspecified"))}</option>`).join("")}</select>`);
+}
+
+function planReviewHtml(report) {
+  if (!report) return "";
+  return `<h3>${esc(t("forms.report"))}</h3><p>${esc(report.summary)}</p>`
+    + (report.issues || []).map(i => `<div class="b-card"><strong>${esc(i.problem)}</strong>
+      <p>${esc(i.evidence)}</p><ul>${(i.options || []).map(o =>
+      `<li><strong>${esc(t("forms.actions." + o.action))}:</strong> ${esc(o.proposal)}</li>`).join("")}</ul></div>`).join("");
+}
+
+async function loadPlanReview() {
+  const box = $("#planReview");
+  if (!box) return;
+  if (B.dirty) { box.textContent = t("forms.save_first"); return; }
+  try {
+    const data = await api("/api/plan-review?provider=" + encodeURIComponent(currentProvider().name || ""));
+    if (box.isConnected && !B.dirty) box.innerHTML = planReviewHtml(data.report);
+  } catch (e) { box.textContent = e.message; }
+}
+
+async function checkPlan() {
+  if (B.dirty) { showToast(t("forms.save_first"), "err"); return; }
+  const btn = $("#checkPlan");
+  if (btn) btn.disabled = true;
+  try {
+    const data = await api("/api/plan-review", {method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({provider: currentProvider().name})});
+    watchJobs(data.job.id, async j => {
+      if (btn?.isConnected) btn.disabled = false;
+      if (j.status !== "done") { showToast(j.error, "err"); return; }
+      await loadPlanReview();
+    });
+  } catch (e) { if (btn) btn.disabled = false; showToast(e.message, "err"); }
 }
 
 function renderBuilder() {
@@ -2659,11 +2707,14 @@ function renderBuilder() {
       <div class="b-row">${fld(t("ui.builder.style"),
         `<textarea data-bind="settings.style_profile" rows="2" placeholder="${esc(t("ui.builder.style_ph"))}">${esc(m.settings?.style_profile ?? "")}</textarea>`)}</div>
       <div class="b-row">
+        ${formSelect("settings.form", m.settings?.form)}
         ${txt(t("ui.builder.target_words"), "settings.target_words", m.settings?.target_words, "b-w-sm", "number")}
         ${txt(t("ui.builder.thread_gap"), "settings.thread_gap", m.settings?.thread_gap, "b-w-sm", "number")}
         ${txt(t("ui.builder.revisions"), "settings.revisions", m.settings?.revisions, "b-w-sm", "number")}
       </div>
     </div>
+    <div class="b-row">${txt(t("forms.override_label"), "settings.form_override", m.settings?.form_override)}</div>
+    <button id="checkPlan">${esc(t("forms.check"))}</button><div id="planReview"></div>
     <div class="b-card">${advisorHtml()}</div></div></details>`;
 
   const worldHtml = `<details class="b-sec" ${acc("sec.world")} data-acc="sec.world">
@@ -2836,6 +2887,7 @@ function renderBuilder() {
   bindBuilder(pane);
   schedulePreview(0);
   loadAdvice();
+  loadPlanReview();
 }
 
 function sceneCount(m) {
@@ -2868,6 +2920,7 @@ function bindBuilder(pane) {
       setPath(B.model, el.dataset.bind, coerce(el));
       if (el.type === "range") el.parentElement.querySelector(".tval").textContent = Number(el.value).toFixed(2);
       B.dirty = true;
+      const review = $("#planReview"); if (review) review.textContent = t("forms.save_first");
       const st = $("#bStatus"); if (st) st.textContent = t("ui.builder.unsaved");
       schedulePreview();
     }
@@ -2905,6 +2958,7 @@ function bindBuilder(pane) {
       if (Array.isArray(list)) list.splice(idx, 1);
       B.dirty = true; renderBuilder();
     }
+    else if (el.id === "checkPlan") checkPlan();
     else if (el.id === "bSave") saveBuilder();
     else if (el.id === "wizOpen") openWizard();
   });
@@ -3312,7 +3366,7 @@ async function renderProjMenu() {
 function openDraftModal() {
   hideProjMenu();
   const providers = S.project?.providers || [];
-  const D = {dir: "", lang: S.lang || "uk", notes: "", provider: currentProvider().name || ""};
+  const D = {dir: "", lang: S.lang || "uk", notes: "", form: "", target_words: "", provider: currentProvider().name || ""};
   const div = document.createElement("div");
   div.className = "wiz-backdrop"; div.id = "draftB";
   div.innerHTML = `<div class="wiz">
@@ -3324,6 +3378,8 @@ function openDraftModal() {
         `<option value="${esc(p.name)}" ${p.name === D.provider ? "selected" : ""}>` +
         `${esc(p.name)}${p.model ? " · " + esc(p.model) : ""}` +
         `${p.available ? "" : " " + esc(t("ui.header.unavailable"))}</option>`).join("")}</select>`)}</div>
+    <div class="b-row">${formSelect("d.form", D.form)}
+      ${txt(t("ui.builder.target_words"), "d.target_words", D.target_words, "b-w-sm", "number")}</div>
     <div class="b-row">${fld(t("ui.draft.notes"),
       `<textarea data-bind="d.notes" rows="12" placeholder="${esc(t("ui.draft.notes_ph"))}"></textarea>`)}</div>
     <div id="dAdvice"></div>
@@ -3385,7 +3441,8 @@ function openDraftModal() {
       const d = await api("/api/project/draft", {method: "POST", headers: {"Content-Type": "application/json"},
         body: JSON.stringify({directory: dir, notes, lang: D.lang.trim() || "uk",
                               provider: D.provider || null,
-                              settings: advice?.settings || null})});
+                              settings: {...(advice?.settings || {}), form: D.form || null,
+                                target_words: D.target_words ? Number(D.target_words) : (D.form ? null : advice?.settings?.target_words)}})});
       div.dataset.running = "1";
       div.querySelector(".wiz").innerHTML = `
         <div class="wz-step">${esc(t("ui.draft.title"))}</div>
@@ -3413,7 +3470,7 @@ function openDraftModal() {
           resetProjectState();
           await load(false);
           showToast(t("ui.draft.done", {title: j.result.title}), "ok");
-          setTab("board");
+          setTab("builder");
         } catch (err) { showToast(t("ui.projects.switch_fail", {e: err.message}), "err"); }
       });
     } catch (err) {
@@ -3556,6 +3613,7 @@ async function finishWizard() {
   const settings = {voice: "third_person_limited", tense: "past",
                     language: (W.data.language || "uk").trim() || "uk",
                     style_profile: W.data.style || ""};
+  if (W.tplId === "short_story") settings.form = "short_story";
   if (W.data.premise.trim()) settings.premise = W.data.premise.trim();
   const book = {
     title: W.data.title.trim() || t("seed.book"),
