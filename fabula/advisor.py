@@ -184,9 +184,13 @@ def recommend(notes: str = "", book: dict | None = None, lang: str | None = None
     # --- target_words ----------------------------------------------------
     words_now = _int(current.get("target_words"), None)
     words_new = _round_to(graph["words"] if graph else scenes * WORDS_PER_SCENE, 1000)
+    preserve_budget = bool(current.get("form") and words_now and words_now > 0)
+    if preserve_budget:
+        words_new = words_now
     items.append(_item(
         "target_words", words_now, words_new,
-        t("advisor.target_words.book" if graph else "advisor.target_words.notes",
+        t("advisor.target_words.preserve" if preserve_budget else
+          "advisor.target_words.book" if graph else "advisor.target_words.notes",
           lang, scenes=scenes, words=words_new),
         "warn" if words_now is None else "info"))
 

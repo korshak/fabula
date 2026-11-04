@@ -24,7 +24,7 @@ from . import library
 from .compiler import compile_source, iter_scenes
 from .i18n import set_lang, t
 from .prompts import book_bible, character_ledger, previous_context, scene_prompt
-from .providers import load_registry
+from .providers import ProviderError, load_registry
 from .state import ProjectState
 
 
@@ -128,9 +128,30 @@ def cmd_write(args):
     state = ProjectState(_build_dir(args))
     scenes = [args.scene] if args.scene else [s["name"] for _, _, s in iter_scenes(result["book"])]
     for name in scenes:
-        agent.write_scene(name, state)
+        try:
+            agent.write_scene(name, state)
+        except (ValueError, ProviderError) as e:
+            print(str(e), file=sys.stderr)
+            return 1
     print(t("cli.done", dir=f"{state.build_dir}/scenes/"))
     return 0
+
+
+def cmd_check_plan(args):
+    from .forms import review_plan, save_review
+    result = _load(args.file)
+    _print_diagnostics(result)
+    if not result["ok"]:
+        return 1
+    agent = _make_agent(args, result["book"])
+    try:
+        report = review_plan(result["book"], agent.provider)
+    except (ValueError, ProviderError) as e:
+        print(str(e), file=sys.stderr)
+        return 1
+    save_review(_build_dir(args), report)
+    print(json.dumps(report, ensure_ascii=False, indent=2))
+    return 0 if report["verdict"] == "ok" else 1
 
 
 def cmd_fix(args):
@@ -263,6 +284,12 @@ def cmd_init(args):
     book_path = target / "book.fab"
     # books in the library are addressed by name, anything else by path
     handle = target.name if target.parent == library.root() else book_path
+    chosen = {k: getattr(args, k) for k in ("form", "target_words") if getattr(args, k, None) is not None}
+    from .forms import validate_form_settings
+    try:
+        validate_form_settings(chosen)
+    except ValueError as e:
+        raise SystemExit(str(e))
     if getattr(args, "from_notes", None):
         if book_path.exists():
             raise SystemExit(t("server.project_exists", path=str(book_path)))
@@ -285,7 +312,7 @@ def cmd_init(args):
             raise SystemExit(t("server.unavailable", name=provider.name, reason=st["reason"]))
         try:
             book = draft_book(notes, resolve_lang(args.lang), provider,
-                              on_progress=lambda m: print(m, file=sys.stderr))
+                              on_progress=lambda m: print(m, file=sys.stderr), settings=chosen)
         except ValueError as e:
             raise SystemExit(str(e))
         for path in write_project(target, book):
@@ -294,6 +321,7 @@ def cmd_init(args):
         return 0
     try:
         starter = starter_book(args.lang, getattr(args, "template", None))
+        starter["settings"].update(chosen)
     except ValueError as e:
         raise SystemExit(str(e))
     if book_path.exists():
@@ -368,6 +396,9 @@ def main(argv=None):
     p.add_argument("directory", help="book name (created in books/) or a path")
     p.add_argument("--lang", help="interface/starter language (default: FABULA_LANG env, else the system locale)")
     p.add_argument("--template", help="plot template id (see `fabula templates`)")
+    from .forms import FORMS
+    p.add_argument("--form", choices=FORMS, help="literary form for planning and writing")
+    p.add_argument("--target-words", type=int, help="total word budget for the work")
     p.add_argument("--from-notes", metavar="FILE",
                    help="draft the whole book from a file with raw author notes "
                         "(the agent fills every field; needs a working model provider)")
@@ -386,6 +417,11 @@ def main(argv=None):
     p = sub.add_parser("plan", help="human-readable outline")
     common(p)
     p.set_defaults(func=cmd_plan)
+
+    p = sub.add_parser("check-plan", help="review literary form and scope before generating prose")
+    common(p)
+    p.add_argument("-m", "--model", help="provider profile from models.json")
+    p.set_defaults(func=cmd_check_plan)
 
     p = sub.add_parser("prompt", help="show the exact prompts the agent would get")
     common(p, scene=True)

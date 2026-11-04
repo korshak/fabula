@@ -40,7 +40,7 @@ NOTES_FILES = ("Нотатки.md", "notes.md", "NOTES.md")
 # Settings the draft dialog may carry over from the advisor. Anything else a
 # client sends is dropped rather than written into a fresh book.
 ADVISED_SETTINGS = {"thread_gap": int, "target_words": int, "revisions": int,
-                    "language": str}
+                    "language": str, "form": str}
 
 
 def _advised_settings(raw) -> dict:
@@ -201,17 +201,38 @@ class Project:
         if not st["available"]:
             raise ValueError(t("server.unavailable", name=provider.name, reason=st["reason"]))
         book_lang = str(lang or i18n.resolve_lang() or "uk").strip() or "uk"
+        from .forms import validate_form_settings
+        if isinstance(settings, dict):
+            validate_form_settings(settings)
+        chosen = _advised_settings(settings)
+        validate_form_settings(chosen)
 
         def target(progress):
             from .draft import draft_book
-            book = draft_book(notes, book_lang, provider, on_progress=progress)
-            book["settings"].update(_advised_settings(settings))
+            book = draft_book(notes, book_lang, provider, on_progress=progress, settings=chosen)
             if book_path.exists():  # re-check: the model call took a while
                 raise ValueError(t("server.project_exists", path=str(book_path)))
             write_project(target_dir, book)
             return {"file": str(book_path), "title": book["title"]}
 
         return self.start_job("draft", target)
+
+    def review_plan_job(self, provider_name: str | None = None) -> dict:
+        from .forms import review_plan, save_review
+        result = self.compiled()
+        if not result["ok"]:
+            raise ValueError(t("server.not_compiling"))
+        if not result["book"]["settings"].get("form"):
+            raise ValueError(t("forms.choose"))
+        provider = self.registry().get(provider_name)
+
+        def target(progress):
+            progress(t("forms.checking"))
+            report = review_plan(result["book"], provider)
+            save_review(self.build_dir, report)
+            return report
+
+        return self.start_job("plan-review", target)
 
     def fix_source_job(self, provider_name: str | None = None) -> dict:
         source = self.read_source()
@@ -574,6 +595,11 @@ class Handler(BaseHTTPRequestHandler):
                 self._json(p.snapshot())
             elif url.path == "/api/jobs":
                 self._json({"jobs": list(p.jobs.values())})
+            elif url.path == "/api/plan-review":
+                from .forms import cached_review
+                book = p.compiled().get("book")
+                provider = p.registry().get(q.get("provider", [None])[0])
+                self._json({"report": cached_review(book, provider, p.build_dir) if book else None})
             elif url.path == "/api/manuscript":
                 self._json(p.manuscript(q.get("translation", [None])[0]))
             elif url.path == "/api/translations":
@@ -679,6 +705,8 @@ class Handler(BaseHTTPRequestHandler):
                                        str(body.get("instruction") or "").strip(),
                                        body.get("comments_from"))
                 self._json({"job": job})
+            elif url.path == "/api/plan-review":
+                self._json({"job": p.review_plan_job(body.get("provider"))})
             elif url.path == "/api/revise":
                 scene, filename = body["scene"], body["file"]
                 if "/" in filename or "\\" in filename or "/" in scene or "\\" in scene:

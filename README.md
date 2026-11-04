@@ -263,6 +263,53 @@ the library outside the checkout.
 
 The server is pure stdlib; model SDKs are needed only for generation.
 
+## Literary forms and plan review
+
+Choose the form before drafting. The planner receives the total word budget;
+the writer and critic share the same form profile.
+
+```bash
+fabula init focused-story --from-notes notes.txt --lang en --form short_story --target-words 4000 -m codex-cli
+fabula check-plan focused-story -m codex-cli
+fabula write focused-story -m codex-cli
+```
+
+Forms: `short_story`, `novella`, `novel`. The studio exposes the form and budget
+in **Book from notes** and **Builder**, with a **Review plan** button and report.
+A conflicting plan offers specific changes before any prose is generated.
+Edit the structure/form/budget or explain a deliberate exception in the Builder.
+No characters or events are automatically removed by the reviewer. Existing
+books without `form` keep their original generation workflow.
+See [the language reference](docs/LANGUAGE.md#literary-form-review).
+
+### Codex CLI
+
+Install and authenticate [Codex CLI](https://learn.chatgpt.com/docs/non-interactive-mode),
+then verify `codex --version` and `codex login status`. Use a version supporting
+`exec --ephemeral --ignore-user-config --output-last-message`.
+The `codex-cli` profile is included in the library config and every new project.
+For an existing book with its own `models.json`, add the profile from
+[examples/models.codex.json](examples/models.codex.json), or use that complete
+config to make Codex its default provider.
+
+```json
+{"type": "codex-cli", "timeout": 900}
+```
+
+An optional `model` selects a model available to your Codex account; when absent,
+Codex chooses its built-in default. Each call uses a temporary directory, a
+read-only sandbox and the existing login. User CLI configuration is ignored for
+this text-only task; authentication is retained. This means custom CLI profiles,
+MCP servers and configured model defaults are not inherited. Generation still
+uses the remote model service. `models.json` contains no tokens or machine paths.
+Provider status detects the executable; the real call verifies authentication.
+
+Opt-in live verification (makes model calls and preserves plans/reports/prose):
+
+```bash
+python3 scripts/smoke_forms.py --provider codex-cli --output build/form-smoke
+```
+
 ## Models: setting up a provider
 
 Fabula never talks to a model until you point it at one. There are three
@@ -369,7 +416,7 @@ ollama serve && ollama pull llama3.3
 
 | key | applies to | meaning |
 |---|---|---|
-| `type` | all | `claude-cli` \| `anthropic` \| `openai` |
+| `type` | all | `claude-cli` \| `codex-cli` \| `anthropic` \| `openai` |
 | `model` | all | model id; required for `anthropic` and `openai` |
 | `base_url` | `openai` | endpoint root, must start with `http://` or `https://` |
 | `api_key_env` | `openai` | name of the env var holding the token (uppercase) |

@@ -65,4 +65,6 @@ def apply_template(tpl: dict, book: dict, lang: str | None = None) -> dict:
                           "scenes": scenes}],
         })
     book["acts"] = acts
+    if tpl.get("id") == "short_story":
+        book.setdefault("settings", {})["form"] = "short_story"
     return book

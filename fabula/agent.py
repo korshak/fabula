@@ -87,6 +87,9 @@ class WriterAgent:
             raise KeyError(f"scene {scene_name!r} not found")
         _, _, scene = found
 
+        from .forms import ensure_plan_review
+        ensure_plan_review(self.book, self.provider, state.build_dir, self.on_progress)
+
         scene_dir = state.scene_dir(scene_name)
         scene_dir.mkdir(parents=True, exist_ok=True)
 

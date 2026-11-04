@@ -16,10 +16,13 @@ Diagnostic codes:
     FAB108  dead character appears in a later scene            (error)
     FAB109  scene references an undeclared thread              (error)
     FAB110  duplicate location/thread name                     (error)
+    FAB111  unknown literary form                              (error)
+    FAB112  invalid target word budget                         (error)
     FAB201  book has no world block                            (warning)
     FAB202  hard rule without description                      (warning)
     FAB203  declared thread is never advanced by any scene     (warning)
     FAB204  thread is silent for too many consecutive scenes   (warning)
+    FAB205  target outside total scene length range             (warning)
 """
 
 from __future__ import annotations
@@ -125,6 +128,17 @@ class Compiler:
 
         self.validate_scenes(book)
         self.validate_threads(book)
+        from .forms import FORMS, budget_conflict
+        form = book["settings"].get("form")
+        if form and form not in FORMS:
+            self.diag("FAB111", "error", t("forms.invalid", form=form), block)
+        words = book["settings"].get("target_words")
+        if words is not None and (type(words) is not int or words <= 0):
+            self.diag("FAB112", "error", t("forms.invalid_words"), block)
+        conflict = budget_conflict(book)
+        if conflict:
+            self.diag("FAB205", "warning", t("forms.budget_conflict", **conflict), block,
+                      t("forms.budget_hint"))
         return book
 
     def compile_world(self, block: Block) -> dict:
